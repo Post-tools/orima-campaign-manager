@@ -147,7 +147,7 @@ const targets=[
 {name:'しらさぎステークス',turn:5},{name:'函館記念',turn:7},{name:'アイビスサマーダッシュ',turn:9},
 {name:'札幌記念',turn:12},{name:'京成杯オータムハンデキャップ',turn:14},{name:'セントウルステークス',turn:14}
 ];
-const initial=()=>({version:'2.0',campaign:{name:'灼熱のサマーシリーズ！！',perTurn:1,streakLimit:2,startDate:'2026-11-17',preDays:2,turnCount:14,daysPerTurn:7,storyDaysPerTurn:null,bondUseLimit:1,manageBonds:true,customBondTypes:false,bondTypeAName:'安定型',bondTypeAFormula:'1d5+5',bondTypeBName:'ギャンブル型',bondTypeBFormula:'1d15',manageOverseasLimit:false,overseasEntryLimit:2,turnNames:[],turnNameManual:[],turnNamePattern:'manual',turnNameDivisions:2,turnNameBaseMonth:1,turnNameFifthWeeks:[],weekNameBase:'',halfNameBase:'',targetRaces:targets.map(x=>({...x}))},characters:[],entries:[],bonds:[],logs:[]});
+const initial=()=>({version:'2.0',campaign:{name:'',perTurn:1,streakLimit:2,startDate:'',preDays:0,turnCount:0,daysPerTurn:7,storyDaysPerTurn:null,bondUseLimit:1,manageBonds:true,customBondTypes:false,bondTypeAName:'安定型',bondTypeAFormula:'1d5+5',bondTypeBName:'ギャンブル型',bondTypeBFormula:'1d15',manageOverseasLimit:false,overseasEntryLimit:2,turnNames:[],turnNameManual:[],turnNamePattern:'manual',turnNameDivisions:2,turnNameBaseMonth:1,turnNameFifthWeeks:[],weekNameBase:'',halfNameBase:'',targetRaces:[]},characters:[],entries:[],bonds:[],logs:[]});
 function normalizeDatabase(input){
  const fallback=initial();
  const data=input&&typeof input==='object'?JSON.parse(JSON.stringify(input)):fallback;
