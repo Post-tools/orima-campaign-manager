@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>オリウマ・シナリオマネージャー v2.1.76</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#242424;background:#f5f6f8}
+*{box-sizing:border-box}body{margin:0}header{background:#202b3b;color:white;padding:18px 16px}
+header h1{font-size:20px;margin:0 0 5px}header p{margin:0;color:#d7deea;font-size:13px}
+main{max-width:1050px;margin:auto;padding:16px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+button,.tab{border:0;border-radius:9px;padding:10px 12px;background:#e4e8ef;color:#263244;font-weight:600;cursor:pointer}
+button.primary,.tab.active{background:#315d91;color:white}button.danger{background:#f7e2e2;color:#8b2424}button.used{background:#d8f1e2;color:#17643a;border:1px solid #8ac9a3}button.notused{background:#e8edf5;color:#34445c}button.small{padding:6px 9px;font-size:12px}
+.panel,.card{background:white;border:1px solid #e0e4ea;border-radius:12px;padding:14px;margin:10px 0}
+.section-card{background:#fff;border:1px solid #d9e0e9;border-radius:11px;padding:14px;margin:14px 0}.section-card>h3{margin:0 0 8px}.section-card>.actions:last-child{justify-content:flex-end;border-top:1px solid #edf0f4;padding-top:10px}.section-help{margin:0 0 10px}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:14px 0 8px}
+label{display:block;font-size:13px;font-weight:650;margin:9px 0 4px}
+input,select,textarea{width:100%;border:1px solid #cbd2dc;border-radius:8px;padding:9px;font:inherit;background:white}
+textarea{min-height:70px;resize:vertical}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.muted{color:#687385;font-size:12px}.pill{display:inline-block;background:#edf1f6;border-radius:20px;padding:3px 8px;font-size:12px;margin:2px}
+.item{border-top:1px solid #e8ebef;padding:10px 0}.item:first-child{border-top:0}
+.char-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.char-info{min-width:0;flex:1}.char-export{flex:0 0 auto}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:8px;border-bottom:1px solid #e7eaf0;vertical-align:top}
+.notice{padding:10px;border-radius:9px;background:#fff6df;color:#664d12;font-size:13px}
+.history-toolbar{display:flex;gap:5px;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap;margin:0;padding:0;background:transparent}.history-toolbar button{flex:0 0 auto;padding:3px 8px;font-size:11px;border-radius:6px;min-height:25px}
+.top-layout{position:relative;display:block;max-width:1600px;margin:0 auto;padding:10px 16px 0}.history-toolbar{position:absolute;left:16px;top:10px}.top-menu{width:100%;max-width:1050px;margin:0 auto;min-width:0}.top-menu .notice{margin:0 0 8px}.top-menu .tabs{margin:0 0 14px}
+@media(max-width:700px){.top-layout{padding:8px 10px 0}.history-toolbar{position:static;margin:0 0 8px}.top-menu{width:100%}}
+.campaign-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
+.campaign-toolbar h2{margin:5px 0 0;flex:0 0 auto}
+.campaign-toolbar-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:0}
+.campaign-toolbar-buttons{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.campaign-toolbar-note{font-size:11px;color:#687385;text-align:right;line-height:1.4}
+@media(max-width:650px){.campaign-toolbar{align-items:stretch;flex-direction:column;gap:8px}.campaign-toolbar-actions{align-items:flex-start}.campaign-toolbar-buttons{justify-content:flex-start}.campaign-toolbar-note{text-align:left}}
+.hidden{display:none}.ok{color:#187344}.bad{color:#a02b2b}
+#campaignTemplates{padding:12px 14px}
+#campaignTemplates>summary{cursor:pointer;list-style:none;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;user-select:none}
+#campaignTemplates>summary::-webkit-details-marker{display:none}
+#campaignTemplates>summary::before{content:"＋";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:#e4e8ef;color:#315d91;font-weight:800}
+#campaignTemplates[open]>summary::before{content:"－"}
+#campaignTemplates:not([open]){padding-top:13px;padding-bottom:13px}
+#entryScheduleDetails>summary{cursor:pointer;list-style:none;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;user-select:none}
+#entryScheduleDetails>summary::-webkit-details-marker{display:none}
+#entryScheduleDetails>summary::before{content:"＋";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:#e4e8ef;color:#315d91;font-weight:800}
+#entryScheduleDetails[open]>summary::before{content:"－"}
+#entryScheduleDetails:not([open]){padding-top:13px;padding-bottom:13px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(2,1fr)}main{padding:10px}td,th{padding:6px}}
+.fifth-week-details{padding:0}.fifth-week-details>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;user-select:none}.fifth-week-details>summary::-webkit-details-marker{display:none}.fifth-week-details>summary::before{content:"▶";font-size:12px;transition:transform .15s}.fifth-week-details[open]>summary::before{transform:rotate(90deg)}.fifth-week-details>summary .muted{margin-left:auto;font-size:.9em}.fifth-week-body{padding:0 14px 14px}
+.template-choice-overlay{position:fixed;inset:0;background:rgba(20,28,40,.48);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10000}.template-choice-dialog{width:min(100%,520px);background:#fff;border-radius:14px;padding:22px;box-shadow:0 16px 48px rgba(0,0,0,.25)}.template-choice-dialog h3{margin:0 0 10px;font-size:18px}.template-choice-dialog p{line-height:1.65}.template-choice-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 10px}.template-choice-actions button{flex:1 1 145px;min-height:44px}.template-choice-dialog .muted{margin-bottom:0}
+</style></head>
+<body>
+<header><h1>オリウマ・シナリオマネージャー</h1><p>v2.1.74｜このブラウザ内に自動保存</p></header>
+<div class="top-layout">
+<div class="history-toolbar">
+<button type="button" id="undoAction" class="small" disabled>元に戻す</button>
+<button type="button" id="redoAction" class="small" disabled>やり直し</button>
+</div>
+<div class="top-menu">
+<div class="notice">保存先はこの端末・このブラウザです。別端末やブラウザには自動同期されません。定期的に「JSONを書き出す」でバックアップしてください。</div>
+<nav class="tabs">
+<button class="tab active" data-tab="campaign">キャンペーン</button><button class="tab" data-tab="characters">キャラクター</button><button class="tab" data-tab="entries">出走管理</button><button class="tab" data-tab="bonds">絆スキル</button><button class="tab" data-tab="logs">開催ログ</button><button class="tab" data-tab="backup">保存・復元</button>
+</nav>
+</div>
+</div>
+<main>
+<section id="campaign" class="panel">
+<div class="campaign-toolbar">
+<div><h2>キャンペーン設定</h2></div>
+<div class="campaign-toolbar-actions">
+<div class="campaign-toolbar-buttons"><button class="primary" id="saveCampaign">設定を保存</button><button class="danger" id="newCampaign">新しいキャンペーンを開催</button></div>
+<div class="campaign-toolbar-note">キャンペーン設定・対象レースを保存し、ページ全体の出走予定を確認します。</div>
+</div>
+</div>
+<details class="card" id="campaignTemplates">
+<summary>キャンペーン設定テンプレート｜設定の保存・呼び出し</summary>
+<div class="notice" style="margin:12px 0">
+<strong>テンプレートに保存する手順</strong><br>
+① 上の「キャンペーン基本設定」「スケジュール設定」「対象レース設定」を希望どおりに設定します。<br>
+② 各設定の保存ボタンを押すか、入力内容の自動保存を待ちます。<br>
+③ 下の「現在のキャンペーン設定を新しいテンプレートとして保存」を押し、テンプレート名を入力します。<br>
+④ 次回からは保存済みテンプレートを選び、「選択したテンプレートを呼び出す」を押します。
+</div>
+<p class="muted">ここで保存するのは<strong>キャンペーンの開催条件・スケジュール・休止日・対象レース</strong>です。キャラクター、出走予定、絆スキル、開催ログは含まれず、呼び出しても変更されません。テンプレートはこのブラウザ内に保存されます。</p>
+<h3>1. 現在の設定をテンプレートとして保存</h3>
+<div class="actions"><button class="primary" id="templateSaveNew">現在のキャンペーン設定を新しいテンプレートとして保存</button></div>
+<h3>2. 保存済みテンプレートを選んで操作</h3>
+<label for="campaignTemplateSelect">保存済みテンプレート</label><select id="campaignTemplateSelect"><option value="">テンプレートを選択</option></select>
+<div class="actions"><button class="primary" id="templateLoad">選択したテンプレートを呼び出す</button><button id="templateOverwrite">現在の設定で選択テンプレートを上書き</button></div>
+<div class="actions"><button id="templateRename">テンプレート名を変更</button><button class="danger" id="templateDelete">選択テンプレートを削除</button></div>
+</details>
+<div class="section-card" id="campaignBasicSection"><h3>キャンペーン基本設定</h3><p class="muted section-help">キャンペーン名、基本的な出走上限、開催期間などを設定します。</p><label>キャンペーン名</label><input id="campaignName">
+<div class="grid"><div><label>1ターンあたりの出走上限</label><input id="perTurn" type="number" min="1"></div><div><label>連続出走上限（通常ターン）</label><input id="streakLimit" type="number" min="1"></div></div>
+<label>開催開始日（任意・プレ・オープニング初日）</label><input id="startDate" type="date"><p class="muted">開催開始日は空欄でも進行できます。未入力の場合は開催日を管理せず、ターン番号で進行します。後から日付を入力すると開催日程を計算します。</p>
+<div class="grid"><div><label>プレ・オープニング日数（0または未入力でも可）</label><input id="preDays" type="number" min="0" placeholder="未入力の場合は0日"><p class="muted">プレ・オープニングを設けない場合は「0」または空欄にしてください。</p></div><div><label>通常ターン数</label><input id="turnCount" type="number" min="1"></div></div>
+<div class="grid"><div><label>1ターンあたりの現実の経過日数</label><input id="daysPerTurn" type="number" min="1" value="7"></div><div><label>1ターンあたりの作中経過日数（記録用）</label><input id="storyDaysPerTurn" type="number" min="1" placeholder="未記載可"><p class="muted">作中の経過日数が分かる場合のみ入力してください。不明な場合は空欄のまま保存できます。ターン名称や開催日程には使用しません。</p></div></div>
+
+<p class="muted">現実の経過日数は開催スケジュールの計算に使用します。作中経過日数は物語・RP上で経過する日数として独立して記録し、開催日程には影響しません。</p>
+<p class="muted">「新しいキャンペーンを開催」を押すと、現在のキャンペーン設定・キャラクター・出走予定・絆スキル・開催ログがすべて初期化されます。必要なデータは事前にJSONで保存してください。</p><div class="actions"><button type="button" class="primary sectionSave" data-section="campaignBasicSection">キャンペーン設定を保存</button></div></div>
+<div class="section-card" id="campaignScheduleSection"><h3>スケジュール設定</h3><p class="muted section-help">休止日、ターン名称パターン、各ターンの日程と名称を設定します。</p><h3>ターン進行しない日（任意）</h3><p class="muted">通常は1日1ターンで進行します。特定の日を休止日に指定すると、その日はターンを進めず、以降の日程が1日ずつ後ろへ移動します。指定しなければ従来どおり毎日進行します。</p><div class="grid"><div><label>休止日</label><input id="noTurnDate" type="date"></div><div class="actions" style="align-items:end"><button id="addNoTurnDate">休止日を追加</button></div></div><div id="noTurnDateList"></div>
+<h3>スケジュール・ターン名称</h3><p class="muted">開催開始日を入力すると、プレ・オープニング日数・1ターンあたりの日数を基準に開催日程を自動計算します。開催開始日が未入力でも、ターン名称は設定・編集できます。名称パターンを選ぶと、全ターンの名称をまとめて設定できます。各ターンの名称は個別に変更することもできます。</p><p class="muted">実際のカレンダーは開催日程と通常ターン数の計算だけに使用します。ターン名称は開催日や作中経過日数に左右されず、指定した基準月と「1か月の分割数」から順番に生成します。</p><div class="grid"><div><label for="turnNamePattern">ターン名称</label><p class="muted" style="margin:4px 0 8px">ターン名称は「1か月を何分割するか」で決まります。実際の開催日・作中経過日数とは独立して設定します。</p><select id="turnNamePattern"><option value="manual">任意入力（個別に設定）</option><option value="division">月の分割数に基づいて自動生成</option></select></div></div><div id="autoNamingOptions" style="display:none"><div class="grid"><div><label for="turnNameDivisions">1か月の分割数</label><select id="turnNameDivisions"><option value="1">1/1（月単位：1月、2月、3月…）</option><option value="2">1/2（前半・後半）</option><option value="3">1/3（上旬・中旬・下旬）</option><option value="4">1/4（第1週・第2週・第3週・第4週）</option></select></div></div><div class="grid"><div><label for="turnNameBaseMonth">第1ターンの基準月</label><select id="turnNameBaseMonth"><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div><div class="muted" style="align-self:end;padding:8px 0">自動生成を選択した場合のみ使用します。1ターンごとに1区分ずつ進み、指定した分割数に達すると翌月になります。</div></div><details id="fifthWeekControls" class="card fifth-week-details" style="display:none;margin-top:12px"><summary><strong>第5週の追加（4分割専用）</strong><span class="muted">必要な場合のみ開いて設定</span></summary><div class="fifth-week-body"><p class="muted">追加したい月を選んでください。追加すると、その月に第5週を挿入し、それ以降の自動生成名称を順番に補完します。同じ月に重複して追加することはできません。</p><div class="actions"><select id="fifthWeekMonth" aria-label="第5週を追加する月"><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select><button type="button" id="addFifthWeek">選択した月に第5週を追加</button></div><div id="fifthWeekList"></div></div></details></div><div class="actions"><button type="button" id="regenerateTurnNames">全ターン名称を再生成</button></div><div id="schedule"></div><div class="actions"><button type="button" class="primary sectionSave" data-section="campaignScheduleSection">スケジュールを保存</button></div></div>
+<div class="section-card" id="targetRaceSection"><h3>対象レース設定</h3>
+<p class="muted">対象レース名と開催ターンを編集できます。開催ターンを変更すると、表示日付も自動更新されます。</p>
+<div class="grid"><div><label for="targetRaceSort">対象レースの並び替え</label><select id="targetRaceSort"><option value="turnAsc">開催順（早い順）</option><option value="registration">登録順</option><option value="turnDesc">開催順（遅い順）</option><option value="nameAsc">レース名順</option></select></div></div>
+<div class="grid"><div><label>レース名</label><input id="newTargetRaceName" placeholder="対象レース名"></div><div><label>開催ターン</label><select id="newTargetRaceTurn"></select></div></div>
+<div class="actions"><button id="addTargetRace">対象レースを追加</button></div><div id="targetRaces"></div><div class="actions"><button type="button" class="primary sectionSave" data-section="targetRaceSection">対象レース設定を保存</button></div></div>
+</section>
+<section id="characters" class="panel hidden">
+<h2>キャラクター管理</h2>
+<div class="grid"><div><label>キャラクター名</label><input id="charName"></div><div><label>プロフィールURL</label><input id="charUrl" type="url"></div></div>
+<label><input id="overseasChecked" type="checkbox" style="width:auto"> 海外レース事前申請を確認済み</label>
+<div class="actions"><button class="primary" id="addChar">キャラクター登録</button></div><p class="muted">各キャラクターの名前・プロフィールURLの横にあるボタンから、そのキャラクターの出走情報と絆スキル情報をPNG画像として出力できます。</p><div class="grid"><div><label for="charListSort">出走者一覧の並び替え</label><select id="charListSort"><option value="nameAsc">キャラクター名順</option><option value="nameDesc">キャラクター名（逆順）</option><option value="overseasAsc">海外申請未確認が先</option><option value="overseasDesc">海外申請確認済が先</option><option value="overseasCountDesc">海外レース出走数が多い順</option></select></div></div><div class="actions"><button type="button" class="small primary" id="copyCharacterList">出走者一覧をテキストコピー</button></div><div id="charList"></div>
+</section>
+<section id="entries" class="panel hidden">
+<div class="campaign-toolbar"><h2>出走管理</h2><div class="campaign-toolbar-buttons"><button type="button" class="small" onclick="exportStatusImage('entries')">出走状況を画像出力</button></div></div>
+<div class="grid"><div><label>出走者</label><select id="entryChar"></select></div><div><label>出走区分</label><select id="entryType"><option>対象レース</option><option>対象外レース</option><option>海外レース</option></select></div></div>
+<div class="grid"><div><label>開催ターン</label><select id="entryTurn"></select></div><div><label>対象レース</label><select id="targetRaceSelect"></select></div></div>
+<label>対象外・海外レース名（自由入力）</label><input id="otherRace" placeholder="対象外・海外の場合に入力">
+<label>備考（PL申請内容）</label><textarea id="entryNote" placeholder="絆スキル使用申請など"></textarea>
+<label>参考URL（任意）</label><input id="entrySourceUrl" type="url" placeholder="https://...">
+<div class="actions"><button class="primary" id="addEntry">出走予定を登録</button></div><details class="card" id="overseasLimitDetails" style="margin:12px 0"><summary>海外レースの出走数管理（任意設定）</summary><div style="padding-top:10px"><p class="muted">海外レースの出走回数に関する制限を設定します。</p><div class="card"><label><input id="manageOverseasLimit" type="checkbox" style="width:auto"> 海外レース出走可能数を管理する</label><div class="grid"><div><label for="overseasEntryLimit">キャラクター1人あたりの海外レース出走上限</label><input id="overseasEntryLimit" type="number" min="1" step="1" value="2"></div><div class="muted" style="align-self:end;padding:8px 0">チェックを外すと海外レースの出走回数を制限しません。</div></div></div></div></details><details class="card" id="entryScheduleDetails"><summary>出走予定一覧（クリックして開く）</summary><div class="grid"><div><label>閲覧するキャラクター</label><select id="entryFilterChar"><option value="">全キャラクター</option></select></div><div><label>並び替え</label><select id="entrySort"><option value="turnAsc">開催順（早い順）</option><option value="turnDesc">開催順（遅い順）</option><option value="charAsc">キャラクター名順</option><option value="raceAsc">レース名順</option><option value="typeAsc">出走区分順</option></select></div></div><div class="muted" id="entryCount"></div><div class="actions"><button type="button" class="small primary" id="copyEntryList">出走予定一覧をテキストコピー</button></div><div id="entryList"></div></details>
+</section>
+<section id="bonds" class="panel hidden">
+<div class="campaign-toolbar"><h2>絆スキル管理</h2><div class="campaign-toolbar-buttons"><button type="button" class="small" onclick="exportStatusImage('bonds')">絆スキル状況を画像出力</button></div></div>
+<div class="section-card" style="margin:12px 0"><h3>絆スキルの使用設定</h3><p class="muted">このキャンペーンで絆スキルを使用するか、使用上限やスキル型を設定します。</p><div class="card"><label><input id="manageBonds" type="checkbox" style="width:auto" checked> このキャンペーンで絆スキルを管理する</label><div id="bondLimitSettings"><label>キャラクター1人あたりの絆スキル使用上限（キャンペーン中）</label><input id="bondUseLimit" type="number" min="1" step="1" value="1"><p class="muted">基本は1回です。複数回使用できるシナリオでは回数を増やしてください。関係性ごとではなく、キャラクターごとの合計使用回数に適用します。</p><details class="card" id="customBondTypesDetails" style="margin-top:10px"><summary><input id="customBondTypes" type="checkbox" style="width:auto"> 絆スキルの型・ダイス式をカスタマイズする</summary><div style="margin-top:10px"><p class="muted">通常はチェック不要です。チェックを入れると、絆スキル登録時に選ぶ2種類の型の名称とダイス式を変更できます。</p><div class="grid"><div><label>スキル型1の名称</label><input id="bondTypeAName" value="安定型"><label>スキル型1のダイス式</label><input id="bondTypeAFormula" value="1d5+5"></div><div><label>スキル型2の名称</label><input id="bondTypeBName" value="ギャンブル型"><label>スキル型2のダイス式</label><input id="bondTypeBFormula" value="1d15"></div></div><p class="muted">ここで設定するのは表示名とダイス式です。実際のダイスを自動で振る機能ではありません。</p></div></details></div></div></div>
+<div id="bondOperationalUI"><div class="grid"><div><label>キャラクターA</label><select id="bondA"></select></div><div><label>キャラクターB</label><select id="bondB"></select></div></div>
+<div class="grid"><div><label>関係性名</label><input id="bondRelation" placeholder="例：幼なじみ"></div><div><label>スキル型</label><select id="bondType"><option>安定型（1d5+5）</option><option>ギャンブル型（1d15）</option></select></div></div>
+<label>参考URL（任意）</label><input id="bondSourceUrl" type="url" placeholder="https://...">
+<div class="actions"><button class="primary" id="addBond">関係性を登録</button></div><div class="grid"><div><label>検索</label><input id="bondSearch" type="search" placeholder="キャラクター名・関係性名・使用メモで検索"></div><div><label>並び替え</label><select id="bondSort"><option value="nameAsc">キャラクター名順</option><option value="nameDesc">キャラクター名（逆順）</option><option value="relationAsc">関係性名順</option><option value="typeAsc">スキル型順</option><option value="unusedFirst">未使用が先</option><option value="usedFirst">使用済みが先</option></select></div></div><div class="muted" id="bondCount"></div><div class="actions"><button type="button" class="small primary" id="copyBondList">絆スキル取得状況をテキストコピー</button></div><div id="bondList"></div></div>
+</section>
+<section id="logs" class="panel hidden">
+<h2>開催ログ</h2>
+<p class="muted">自動記録：出走申請、連続出走上限到達、絆スキル取得、絆スキル使用。手動で追加した運営メモ等も保存できます。自動記録は操作時点の内容を記録し、後から出走・絆スキル情報を編集しても過去ログは自動変更されません。</p>
+<div class="grid"><div><label>日付</label><input id="logDate" type="date"></div><div><label>分類</label><select id="logCategory"><option>開催内容</option><option>出走申請</option><option>連続出走上限到達</option><option>絆スキル取得記録</option><option>絆スキル使用記録</option><option>運営メモ</option><option>その他</option></select></div></div>
+<label>内容</label><textarea id="logBody"></textarea><div class="actions"><button class="primary" id="addLog">ログを追加</button></div><div id="logList"></div>
+</section>
+<section id="backup" class="panel hidden">
+<h2>保存・復元</h2>
+<div class="notice"><strong>保存の基本</strong><br>編集内容はこのブラウザ内に自動保存されます。ただし、ブラウザのデータ削除・端末故障などで失われる可能性があります。大切なプロジェクトは、定期的にJSONファイルとして書き出し、パソコン本体とは別の場所（外付けドライブやクラウドストレージ等）にも保管してください。</div>
+<div class="section-card"><h3>1. プロジェクト全体をJSONで保存</h3><p class="muted">キャンペーン設定・ターン名称・第5週設定・キャラクター・出走情報・絆スキル・開催ログを、1つのJSONファイルにまとめて保存します。</p><div class="actions"><button class="primary" id="exportJson">プロジェクト全体をJSONファイルに保存</button></div><p class="muted">保存前にJSONとして再読み込みできる形式か検証します。ボタンを押すとブラウザにダウンロードを依頼します。ダウンロード完了後、保存先にファイルが存在することを確認してください。</p></div>
+<div class="section-card"><h3>2. JSONからプロジェクト全体を復元</h3><p class="muted">読み込むJSONの構造を検証してから復元します。必要な場合だけ、復元前に現在のプロジェクトを安全用JSONとしてダウンロードできます。</p><label style="display:flex;align-items:center;gap:8px;font-weight:600;margin:10px 0"><input id="backupBeforeImport" type="checkbox" style="width:auto;flex:0 0 auto">復元前に現在のプロジェクトをJSONバックアップする</label><p class="muted">チェックを入れた場合のみ、現在のプロジェクトのバックアップをダウンロードし、ファイルの保存確認を行います。チェックを外した場合は、この手順を省略して復元できます。</p><div class="actions"><label style="display:inline-block;margin:0"><button type="button" onclick="document.getElementById('importFile').click()">JSONバックアップからプロジェクト全体を復元</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></label></div><p class="muted">復元方法の選択画面で「既存キャンペーンを更新」は現在のデータを置き換えます。「新規キャンペーンとして切り替え」は読み込んだデータを現在の作業領域に切り替えます。複数キャンペーンを同時に保存する機能ではありません。</p></div>
+<div class="section-card"><h3>3. 出走履歴だけを書き出す</h3><p class="muted">表計算ソフト等で確認するためのCSVです。プロジェクト全体のバックアップには使用できません。</p><div class="actions"><button id="exportCsv">出走履歴CSVを書き出す</button></div></div>
+<p id="backupStatus" class="muted" role="status" aria-live="polite">この画面を開くと、現在のプロジェクトの登録件数を表示します。</p>
+<div class="notice">重要：ブラウザからダウンロードを開始したことと、ファイルが保存先に正常に保管されたことは同じではありません。ダウンロードフォルダー等でファイルの存在を確認し、定期的に別の場所にもコピーしてください。</div>
+</section>
+</main>
+<script>
+const KEY='ori-uma-manager-v2';
+const targets=[
+{name:'しらさぎステークス',turn:5},{name:'函館記念',turn:7},{name:'アイビスサマーダッシュ',turn:9},
+{name:'札幌記念',turn:12},{name:'京成杯オータムハンデキャップ',turn:14},{name:'セントウルステークス',turn:14}
+];
+const initial=()=>({version:'2.0',campaign:{name:'灼熱のサマーシリーズ！！',perTurn:1,streakLimit:2,startDate:'2026-11-17',preDays:2,turnCount:14,daysPerTurn:7,storyDaysPerTurn:null,bondUseLimit:1,manageBonds:true,customBondTypes:false,bondTypeAName:'安定型',bondTypeAFormula:'1d5+5',bondTypeBName:'ギャンブル型',bondTypeBFormula:'1d15',manageOverseasLimit:false,overseasEntryLimit:2,turnNames:[],turnNameManual:[],turnNamePattern:'manual',turnNameDivisions:2,turnNameBaseMonth:1,turnNameFifthWeeks:[],weekNameBase:'',halfNameBase:'',targetRaces:targets.map(x=>({...x}))},characters:[],entries:[],bonds:[],logs:[]});
+function normalizeDatabase(input){
+ const fallback=initial();
+ const data=input&&typeof input==='object'?JSON.parse(JSON.stringify(input)):fallback;
+ if(!data.campaign||typeof data.campaign!=='object')data.campaign={...fallback.campaign};
+ data.version=data.version||'2.0';
+ data.characters=Array.isArray(data.characters)?data.characters:[];
+ data.entries=Array.isArray(data.entries)?data.entries:[];
+ data.bonds=Array.isArray(data.bonds)?data.bonds:[];
+ data.logs=Array.isArray(data.logs)?data.logs:[];
+ const c=data.campaign,defaults=fallback.campaign;
+ Object.keys(defaults).forEach(k=>{if(c[k]===undefined)c[k]=Array.isArray(defaults[k])?[...defaults[k]]:defaults[k]});
+ if(c.storyDaysPerTurn===undefined)c.storyDaysPerTurn=null;
+ if(c.customBondTypes===undefined)c.customBondTypes=false;if(!c.bondTypeAName)c.bondTypeAName='安定型';if(!c.bondTypeAFormula)c.bondTypeAFormula='1d5+5';if(!c.bondTypeBName)c.bondTypeBName='ギャンブル型';if(!c.bondTypeBFormula)c.bondTypeBFormula='1d15';
+ const legacyPattern=c.turnNamePattern;
+ if(!Number.isInteger(Number(c.turnNameDivisions))||Number(c.turnNameDivisions)<1||Number(c.turnNameDivisions)>4)c.turnNameDivisions=legacyPattern==='week'?4:legacyPattern==='half'?2:legacyPattern==='month'?1:2;
+ if(!Number.isInteger(Number(c.turnNameBaseMonth))||Number(c.turnNameBaseMonth)<1||Number(c.turnNameBaseMonth)>12){const first=String(c.turnNames?.[0]||'').match(/(\d{1,2})月/);c.turnNameBaseMonth=Number(first?.[1]||String(c.startDate||'').slice(5,7)||1)||1;}
+ if(['week','half','month'].includes(c.turnNamePattern))c.turnNamePattern='division';
+ if(!['manual','division'].includes(c.turnNamePattern))c.turnNamePattern='manual';
+ c.turnNameDivisions=Number(c.turnNameDivisions)||2;c.turnNameBaseMonth=Number(c.turnNameBaseMonth)||1;
+ c.turnNameFifthWeeks=Array.isArray(c.turnNameFifthWeeks)?c.turnNameFifthWeeks.map(Number).filter(m=>Number.isInteger(m)&&m>=1&&m<=12):[];
+ c.turnNames=Array.isArray(c.turnNames)?c.turnNames.map(String):[];
+ c.turnNameManual=Array.isArray(c.turnNameManual)?c.turnNameManual.map(Boolean):c.turnNames.map(()=>true);
+ if(c.manageOverseasLimit===undefined)c.manageOverseasLimit=false;if(c.overseasEntryLimit===undefined)c.overseasEntryLimit=2;
+ c.noTurnDates=Array.isArray(c.noTurnDates)?c.noTurnDates:[];c.targetRaces=Array.isArray(c.targetRaces)?c.targetRaces:[];
+ return data;
+}
+function load(){try{return normalizeDatabase(JSON.parse(localStorage.getItem(KEY))||initial())}catch(e){return initial()}}
+let db=load();
+let targetRaceSort='turnAsc';
+const undoStack=[],redoStack=[];const HISTORY_LIMIT=100;
+let lastCommitted=JSON.stringify(db);
+function updateHistoryButtons(){const u=document.getElementById('undoAction'),r=document.getElementById('redoAction');if(u)u.disabled=!undoStack.length;if(r)r.disabled=!redoStack.length;}
+function storageErrorMessage(e){if(e&&(e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'||e.code===22||e.code===1014))return 'ブラウザの保存領域が不足しているため保存できませんでした。JSONバックアップを別の場所に保管し、不要なブラウザ内データがないか確認してください。';if(e&&e.name==='SecurityError')return 'ブラウザがこのファイルからのローカル保存を拒否しました。通常のブラウザウィンドウで開いているか確認してください。';return `ブラウザへの保存に失敗しました（${e?.name||'原因不明'}）。画面の内容は再読み込みせず、先にJSONを書き出してください。`;}
+function persistHistoryState(){let serialized;try{serialized=JSON.stringify(db);localStorage.setItem(KEY,serialized);lastCommitted=serialized;}catch(e){console.error('localStorage write failed',e);alert(storageErrorMessage(e));return false;}try{render();updateHistoryButtons();}catch(e){console.error('Data saved, but rendering failed',e);alert('データはブラウザに保存されましたが、画面の更新中にエラーが発生しました。保存データは残っています。可能ならJSONバックアップを書き出してください。');}return true;}
+function undo(){if(!undoStack.length)return;redoStack.push(JSON.parse(JSON.stringify(db)));db=undoStack.pop();persistHistoryState();}
+function redo(){if(!redoStack.length)return;undoStack.push(JSON.parse(JSON.stringify(db)));db=redoStack.pop();persistHistoryState();}
+function syncTargetRaceDates(){
+ const schedule=turns();
+ getTargets().forEach(t=>{t.date=schedule[t.turn-1]?.date||'';});
+}
+function save(){syncTargetRaceDates();const current=JSON.stringify(db);let pushed=false;if(current!==lastCommitted){undoStack.push(JSON.parse(lastCommitted));pushed=true;if(undoStack.length>HISTORY_LIMIT)undoStack.shift();redoStack.length=0;}const ok=persistHistoryState();if(!ok&&pushed)undoStack.pop();return ok;}
+const TEMPLATE_KEY='ori-uma-manager-campaign-templates-v1';
+function readTemplates(){try{const v=JSON.parse(localStorage.getItem(TEMPLATE_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
+function writeTemplates(list){try{localStorage.setItem(TEMPLATE_KEY,JSON.stringify(list));return true}catch(e){alert('テンプレートを保存できませんでした。ブラウザの保存容量を確認してください。');return false}}
+function captureCampaignSettings(){
+ const n=Number(document.getElementById('turnCount').value),preDaysRaw=document.getElementById('preDays').value.trim(),p=preDaysRaw===''?0:Number(preDaysRaw),per=Number(document.getElementById('perTurn').value),lim=Number(document.getElementById('streakLimit').value),days=Number(document.getElementById('daysPerTurn').value),storyDaysRaw=document.getElementById('storyDaysPerTurn').value.trim(),storyDays=storyDaysRaw===''?null:Number(storyDaysRaw),start=document.getElementById('startDate').value,bondLimit=Number(document.getElementById('bondUseLimit').value),manageBonds=document.getElementById('manageBonds').checked,overseasLimit=Number(document.getElementById('overseasEntryLimit').value);
+ if(!Number.isInteger(n)||n<1||!Number.isInteger(p)||p<0||!Number.isInteger(per)||per<1||!Number.isInteger(lim)||lim<1||!Number.isInteger(days)||days<1||(storyDays!==null&&(!Number.isInteger(storyDays)||storyDays<1))||(manageBonds&&(!Number.isInteger(bondLimit)||bondLimit<1))||(document.getElementById('manageOverseasLimit').checked&&(!Number.isInteger(overseasLimit)||overseasLimit<1))||(start&&!/^\d{4}-\d{2}-\d{2}$/.test(start))){alert('日数・上限、または開催開始日の形式を確認してください。');return null}
+ return {name:document.getElementById('campaignName').value.trim()||'キャンペーン',perTurn:per,streakLimit:lim,startDate:start,preDays:p,turnCount:n,daysPerTurn:days,storyDaysPerTurn:storyDays,bondUseLimit:bondLimit,manageBonds,customBondTypes:document.getElementById('customBondTypes').checked,bondTypeAName:document.getElementById('bondTypeAName').value.trim()||'安定型',bondTypeAFormula:document.getElementById('bondTypeAFormula').value.trim()||'1d5+5',bondTypeBName:document.getElementById('bondTypeBName').value.trim()||'ギャンブル型',bondTypeBFormula:document.getElementById('bondTypeBFormula').value.trim()||'1d15',manageOverseasLimit:document.getElementById('manageOverseasLimit').checked,overseasEntryLimit:overseasLimit,turnNames:Array.from({length:n},(_,i)=>document.getElementById(`turnName_${i+1}`)?.value??turnName(i)),turnNameManual:Array.from({length:n},(_,i)=>!!db.campaign.turnNameManual?.[i]),turnNamePattern:document.getElementById('turnNamePattern').value,turnNameDivisions:Number(document.getElementById('turnNameDivisions').value)||2,turnNameBaseMonth:Number(document.getElementById('turnNameBaseMonth').value)||1,turnNameFifthWeeks:[...(db.campaign.turnNameFifthWeeks||[])],noTurnDates:[...noTurnDates()],targetRaces:getTargets().map(t=>({...t}))};
+}
+function commitCampaignDraft(){const settings=captureCampaignSettings();if(!settings)return false;db.campaign={...db.campaign,...settings};refreshAutomaticTurnNames(false);syncTargetRaceDates();save();return true;}
+function refreshTemplateSelect(selected=''){const sel=document.getElementById('campaignTemplateSelect');if(!sel)return;const list=readTemplates();sel.innerHTML='<option value="">テンプレートを選択</option>'+list.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');if(selected)sel.value=selected;}
+function selectedTemplate(){const id=document.getElementById('campaignTemplateSelect').value;return readTemplates().find(t=>t.id===id)}
+function applyTemplate(t){
+ const raw=t.settings;if(!raw||!Array.isArray(raw.targetRaces)||!Array.isArray(raw.noTurnDates))return alert('このテンプレートのデータ形式が正しくありません。');
+ const legacyDivisions=raw.turnNamePattern==='week'?4:raw.turnNamePattern==='month'?1:2;const parsedMonth=Number(String(raw.turnNames?.[0]||'').match(/(\d{1,2})月/)?.[1])||Number(String(raw.startDate||'').slice(5,7))||1;const c={...raw,turnNamePattern:['week','half','month'].includes(raw.turnNamePattern)?'division':(raw.turnNamePattern||'manual'),turnNameDivisions:Number(raw.turnNameDivisions)||legacyDivisions,turnNameBaseMonth:Number(raw.turnNameBaseMonth)||parsedMonth,turnNameFifthWeeks:Array.isArray(raw.turnNameFifthWeeks)?raw.turnNameFifthWeeks.map(Number).filter(m=>Number.isInteger(m)&&m>=1&&m<=12):[]};
+ const preview=scheduleConfirmation(c.startDate,Number(c.preDays),Number(c.turnCount),c.noTurnDates,Number(c.daysPerTurn)||1,c.turnNames||[]);
+ if(!confirm(`「${t.name}」を呼び出します。キャンペーン設定と対象レースを置き換えます。キャラクター・出走予定・絆スキル・開催ログは保持されます。\n\n${preview}\n\n呼び出しますか？`))return;
+ db.campaign={...db.campaign,...c,bondUseLimit:Number(c.bondUseLimit)||1,manageBonds:c.manageBonds!==false,targetRaces:c.targetRaces.map(x=>({...x})),noTurnDates:[...c.noTurnDates]};
+ refreshAutomaticTurnNames(false);syncTargetRaceDates();save();
+ const issues=checkEntryScheduleIssues();
+ alert(`テンプレート「${t.name}」を呼び出しました。\nキャラクター・出走予定・絆スキル・開催ログは保持されています。`+(issues.length?`\n\n現在の出走予定に確認項目が${issues.length}件あります。出走管理で確認してください。`:'\n出走予定の重複・連続出走上限超過・対象レース日程の不一致はありません。'));
+}
+function chooseDuplicateTemplateAction(name,count){
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');
+  overlay.className='template-choice-overlay';
+  overlay.innerHTML=`<div class="template-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="templateChoiceTitle"><h3 id="templateChoiceTitle">同名のテンプレートがあります</h3><p>「${esc(name)}」という名前のテンプレートが${count}件あります。保存方法を選択してください。</p><div class="template-choice-actions"><button type="button" class="primary" data-choice="overwrite">上書き</button><button type="button" data-choice="duplicate">別のテンプレートとして保存</button><button type="button" class="danger" data-choice="cancel">キャンセル</button></div><p class="muted">「別のテンプレートとして保存」を選ぶと、末尾に番号を付けて区別します（例：${esc(name)} 1）。「キャンセル」ではテンプレート保存を行いません。</p></div>`;
+  let settled=false;
+  const finish=value=>{if(settled)return;settled=true;document.removeEventListener('keydown',onKey);overlay.remove();resolve(value)};
+  const onKey=e=>{if(e.key==='Escape')finish('cancel')};
+  overlay.addEventListener('click',e=>{if(e.target===overlay)finish('cancel')});
+  overlay.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>finish(btn.dataset.choice)));
+  document.addEventListener('keydown',onKey);
+  document.body.appendChild(overlay);
+  overlay.querySelector('[data-choice="overwrite"]').focus();
+ });
+}
+document.getElementById('templateSaveNew').onclick=async()=>{
+ const draft=captureCampaignSettings();
+ if(!draft)return;
+ const entered=prompt('テンプレート名を入力してください',draft.name);
+ if(entered===null)return;
+ const baseName=entered.trim();
+ if(!baseName)return alert('テンプレート名を入力してください。');
+ const list=readTemplates();
+ const same=list.filter(t=>String(t.name||'').trim()===baseName);
+ let action='new';
+ if(same.length){
+  action=await chooseDuplicateTemplateAction(baseName,same.length);
+  if(action==='cancel')return;
+ }
+ if(!commitCampaignDraft())return;
+ const settings=JSON.parse(JSON.stringify(db.campaign));
+ if(action==='overwrite'){
+  const target=same[0];
+  target.settings=settings;
+  if(writeTemplates(list)){refreshTemplateSelect(target.id);alert(`テンプレート「${target.name}」を上書きしました。`)}
+  return;
+ }
+ let finalName=baseName;
+ if(list.some(t=>String(t.name||'').trim()===finalName)){
+  let suffix=1;
+  while(list.some(t=>String(t.name||'').trim()===`${baseName} ${suffix}`))suffix++;
+  finalName=`${baseName} ${suffix}`;
+ }
+ const id=crypto.randomUUID();
+ list.push({id,name:finalName,settings});
+ if(writeTemplates(list)){refreshTemplateSelect(id);alert(`キャンペーン設定テンプレート「${finalName}」を新しく保存しました。`)}
+};
+document.getElementById('templateLoad').onclick=()=>{const t=selectedTemplate();if(!t)return alert('呼び出すテンプレートを選択してください。');applyTemplate(t)};
+document.getElementById('templateOverwrite').onclick=()=>{const t=selectedTemplate();if(!t)return alert('上書きするテンプレートを選択してください。');if(!commitCampaignDraft())return;const settings=JSON.parse(JSON.stringify(db.campaign));if(!confirm(`「${t.name}」を現在の設定で上書きしますか？`))return;const list=readTemplates(),i=list.findIndex(x=>x.id===t.id);if(i<0)return alert('テンプレートが見つかりません。');list[i].settings=settings;if(writeTemplates(list))alert('テンプレートを上書きしました。')};
+document.getElementById('templateRename').onclick=()=>{const t=selectedTemplate();if(!t)return alert('名前を変更するテンプレートを選択してください。');const name=prompt('新しいテンプレート名',t.name);if(name===null)return;if(!name.trim())return alert('テンプレート名を入力してください。');const list=readTemplates(),i=list.findIndex(x=>x.id===t.id);if(i<0)return;list[i].name=name.trim();if(writeTemplates(list))refreshTemplateSelect(t.id)};
+document.getElementById('templateDelete').onclick=()=>{const t=selectedTemplate();if(!t)return alert('削除するテンプレートを選択してください。');if(!confirm(`テンプレート「${t.name}」を削除しますか？現在のキャンペーンデータには影響しません。`))return;const list=readTemplates().filter(x=>x.id!==t.id);if(writeTemplates(list))refreshTemplateSelect()};
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function safeSourceUrl(value){const raw=String(value||'').trim();if(!raw)return '';try{const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}}
+function sourceLink(value){const u=safeSourceUrl(value);return u?`<div class="muted">申請元：<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u)}</a></div>`:''}
+function getTargets(){if(!Array.isArray(db.campaign.targetRaces))db.campaign.targetRaces=targets.map(x=>({...x}));return db.campaign.targetRaces}
+function noTurnDates(){if(!Array.isArray(db.campaign.noTurnDates))db.campaign.noTurnDates=[];return db.campaign.noTurnDates}
+function dateAt(offset){return db.campaign.startDate?calculateDateAt(db.campaign.startDate,offset,noTurnDates()):''}
+function turnName(i){return (db.campaign.turnNames||[])[i]||defaultTurnName(i)}
+function calculateDateAt(startDate,offset,skipDates){let d=new Date(startDate+'T12:00:00'),count=0,skips=new Set(skipDates);while(count<offset){d.setDate(d.getDate()+1);const key=d.toISOString().slice(0,10);if(!skips.has(key))count++}while(skips.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)}
+function scheduleConfirmation(startDate,preDays,turnCount,skipDates,daysPerTurn=1,names=[]){const lines=[];for(let i=0;i<turnCount;i++){if(startDate){const date=calculateDateAt(startDate,preDays+i*daysPerTurn,skipDates);const end=calculateDateAt(startDate,preDays+i*daysPerTurn+daysPerTurn-1,skipDates);lines.push(`${names[i]||`通常ターン ${i+1}`}：${date}${end!==date?` ～ ${end}`:''}`)}else lines.push(`${names[i]||`第${i+1}ターン`}：開催日未設定`)}return `更新後の開催スケジュールを確認してください。\n\n通常ターン数：${turnCount}ターン${startDate?`／1ターン${daysPerTurn}日`:''}\n\n${lines.join('\n')}\n\nこの内容で更新しますか？`}
+function turns(){let a=[];const days=Number(db.campaign.daysPerTurn)||1;for(let i=0;i<db.campaign.turnCount;i++){const offset=db.campaign.preDays+i*days;const date=db.campaign.startDate?calculateDateAt(db.campaign.startDate,offset,noTurnDates()):'';const end=db.campaign.startDate?calculateDateAt(db.campaign.startDate,offset+days-1,noTurnDates()):'';a.push({index:i+1,name:turnName(i),date,endDate:end});}return a}
+window.updateTurnName=(i,value)=>{if(!Array.isArray(db.campaign.turnNames))db.campaign.turnNames=[];if(!Array.isArray(db.campaign.turnNameManual))db.campaign.turnNameManual=[];db.campaign.turnNames[i-1]=value;db.campaign.turnNameManual[i-1]=true};
+function generatedNames(pattern,count,divisions,baseMonth,fifthWeeks=[]){if(pattern!=='division')return [];const d=Math.max(1,Math.min(4,Number(divisions)||2)),base=Math.max(1,Math.min(12,Number(baseMonth)||1));const labels=d===1?['']:d===2?['前半','後半']:d===3?['上旬','中旬','下旬']:['第1週','第2週','第3週','第4週'];const extras=new Set((Array.isArray(fifthWeeks)?fifthWeeks:[]).map(Number).filter(m=>Number.isInteger(m)&&m>=1&&m<=12));const result=[];let monthOffset=0;while(result.length<count){const month=((base-1+monthOffset)%12)+1;const monthLabels=d===4&&extras.has(month)?[...labels,'第5週']:labels;for(const label of monthLabels){if(result.length>=count)break;result.push(`${month}月${label}`)}monthOffset++;}return result}
+function refreshAutomaticTurnNames(force=false){const pattern=db.campaign.turnNamePattern||'manual';if(pattern!=='division')return;const count=Number(db.campaign.turnCount)||1,generated=generatedNames(pattern,count,db.campaign.turnNameDivisions,db.campaign.turnNameBaseMonth,db.campaign.turnNameFifthWeeks);if(!Array.isArray(db.campaign.turnNameManual))db.campaign.turnNameManual=[];if(!Array.isArray(db.campaign.turnNames))db.campaign.turnNames=[];for(let i=0;i<count;i++){if(force||!db.campaign.turnNameManual[i]){db.campaign.turnNames[i]=generated[i];db.campaign.turnNameManual[i]=false;}}db.campaign.turnNames.length=count;db.campaign.turnNameManual.length=count}
+function defaultTurnName(i){return `第${i+1}ターン`}
+window.applyTurnNamePattern=pattern=>{const settings=captureCampaignSettings();if(!settings)return;db.campaign={...db.campaign,...settings,turnNamePattern:pattern};refreshAutomaticTurnNames(true);renderScheduleOnly();save()};
+function renderFifthWeekControls(){const box=document.getElementById('fifthWeekControls');if(!box)return;const enabled=db.campaign.turnNamePattern==='division'&&Number(db.campaign.turnNameDivisions)===4;box.style.display=enabled?'block':'none';if(!enabled)return;const added=[...(db.campaign.turnNameFifthWeeks||[])].map(Number).filter(m=>Number.isInteger(m)&&m>=1&&m<=12).sort((a,b)=>a-b);const select=document.getElementById('fifthWeekMonth');if(select){const current=Number(select.value)||1;select.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}" ${added.includes(i+1)?'disabled':''}>${i+1}月${added.includes(i+1)?'（追加済み）':''}</option>`).join('');select.value=String(added.includes(current)?Array.from({length:12},(_,i)=>i+1).find(m=>!added.includes(m))||1:current)}document.getElementById('fifthWeekList').innerHTML=added.length?`<div class="muted">追加済み：${added.map(m=>`<span class="pill">${m}月第5週 <button type="button" class="small danger" onclick="removeFifthWeek(${m})">削除</button></span>`).join(' ')}</div>`:'<p class="muted">第5週は追加されていません。</p>'}
+window.addFifthWeek=()=>{if(db.campaign.turnNamePattern!=='division'||Number(db.campaign.turnNameDivisions)!==4)return;const month=Number(document.getElementById('fifthWeekMonth').value);if(!Number.isInteger(month)||month<1||month>12)return;if(!Array.isArray(db.campaign.turnNameFifthWeeks))db.campaign.turnNameFifthWeeks=[];if(db.campaign.turnNameFifthWeeks.includes(month))return alert(`${month}月には既に第5週が追加されています。`);if(!confirm(`${month}月に第5週を追加します。以降の自動生成ターン名称が順番に繰り下がります。よろしいですか？`))return;db.campaign.turnNameFifthWeeks.push(month);refreshAutomaticTurnNames(false);renderScheduleOnly();save()};
+window.removeFifthWeek=month=>{if(!confirm(`${month}月第5週を削除します。以降の自動生成ターン名称を詰めます。よろしいですか？`))return;db.campaign.turnNameFifthWeeks=(db.campaign.turnNameFifthWeeks||[]).filter(m=>Number(m)!==Number(month));refreshAutomaticTurnNames(false);renderScheduleOnly();save()};
+function renderScheduleOnly(){const pattern=document.getElementById('turnNamePattern');if(pattern)pattern.value=db.campaign.turnNamePattern||'manual';const autoOptions=document.getElementById('autoNamingOptions');if(autoOptions)autoOptions.style.display=(db.campaign.turnNamePattern==='division')?'block':'none';const divisions=document.getElementById('turnNameDivisions'),baseMonth=document.getElementById('turnNameBaseMonth');if(divisions)divisions.value=String(db.campaign.turnNameDivisions||2);if(baseMonth)baseMonth.value=String(db.campaign.turnNameBaseMonth||1);renderFifthWeekControls();document.getElementById('schedule').innerHTML=turns().map(t=>`<div class="item"><div class="grid"><div><label>通常ターン ${t.index} の名称</label><input id="turnName_${t.index}" value="${esc(t.name)}" oninput="updateTurnName(${t.index},this.value)" ></div><div><label>開催日程</label><div style="padding:9px 0">${t.date?(t.date+(t.endDate!==t.date?` ～ ${t.endDate}`:'')):'未設定（開催日を入力すると自動計算）'}</div></div></div></div>`).join('')}
+
+function allDates(){if(!db.campaign.startDate)return [];let active=[];for(let i=0;i<db.campaign.preDays;i++)active.push({name:'プレ・オープニング',date:dateAt(i),index:0});active=active.concat(turns());const byDate=new Map(active.map(x=>[x.date,x]));const end=active.length?active[active.length-1].date:db.campaign.startDate;let rows=[],d=new Date(db.campaign.startDate+'T12:00:00'),last=new Date(end+'T12:00:00');for(;d<=last;d.setDate(d.getDate()+1)){const key=d.toISOString().slice(0,10);rows.push(byDate.get(key)||{name:'ターン進行なし',date:key,index:-1})}return rows}
+function countBondUses(charId){return db.bonds.reduce((n,b)=>n+(b.a===charId&&b.usedA?1:0)+(b.b===charId&&b.usedB?1:0),0)}
+function drawBondList(){
+ const list=currentBondRows();
+ document.getElementById('bondCount').textContent=`表示：${list.length}組／登録：${db.bonds.length}組`;
+ document.getElementById('bondList').innerHTML=list.map(b=>{const sideHtml=side=>{const used=!!b['used'+side],charId=b[side.toLowerCase()],name=nameOf(charId),count=countBondUses(charId),limit=Math.max(1,Number(db.campaign.bondUseLimit)||1),exhausted=count>=limit;return `<div><div><b>${esc(name)}</b></div><div class="muted">使用回数：${count}／${limit}回</div><div class="muted">${used?'この関係性では使用済み':exhausted?'使用上限到達':'使用可能'}</div>${used?`<div class="muted">使用時期：${esc(b['usedWhen'+side]||'未記録')}</div><div class="muted">メモ：${esc(b['usedMemo'+side]||b['usedRace'+side]||'なし')}</div>${sourceLink(b['usedSourceUrl'+side])}<button class="small" onclick="editBondUse('${b.id}','${side}')">使用内容を編集</button><button class="small danger" onclick="resetBondUse('${b.id}','${side}')">使用記録を取り消す</button>`:exhausted?'<div class="muted">このキャンペーンの使用上限に達しているため、追加使用できません。</div>':`<button class="small notused" onclick="markBondUsed('${b.id}','${side}')">使用する</button>`}</div>`};return `<div class="item"><b>${esc(nameOf(b.a))} × ${esc(nameOf(b.b))}</b><div>${esc(b.relation)}｜${esc(b.type)}</div>${sourceLink(b.sourceUrl)}<div class="actions"><button class="small" onclick="editBond('${b.id}')">関係性を編集</button><button class="small danger" onclick="deleteBond('${b.id}')">関係性を削除</button></div><div class="grid">${sideHtml('A')}${sideHtml('B')}</div></div>`}).join('')||'<p class="muted">検索条件に一致する絆スキルはありません。</p>';
+}
+
+function renderTargetRaceList(){
+ const list=getTargets().map((race,index)=>({race,index}));
+ if(targetRaceSort==='turnAsc')list.sort((a,b)=>(Number(a.race.turn)||0)-(Number(b.race.turn)||0)||a.index-b.index);
+ else if(targetRaceSort==='turnDesc')list.sort((a,b)=>(Number(b.race.turn)||0)-(Number(a.race.turn)||0)||a.index-b.index);
+ else if(targetRaceSort==='nameAsc')list.sort((a,b)=>String(a.race.name).localeCompare(String(b.race.name),'ja')||a.index-b.index);
+ document.getElementById('targetRaces').innerHTML=list.map(({race:t,index:i})=>`<div class="item"><b>${esc(t.name)}</b> <span class="pill">${turns()[t.turn-1]?.name||'未設定'}</span> <span class="muted">${t.date||turns()[t.turn-1]?.date||''}</span><div class="actions"><button class="small" onclick="editTargetRace(${i})">編集</button><button class="small danger" onclick="deleteTargetRace(${i})">削除</button></div></div>`).join('')||'<p class="muted">対象レースは登録されていません。</p>';
+}
+
+function updateCustomBondTypeUI(){const enabled=!!document.getElementById('customBondTypes')?.checked;const details=document.getElementById('customBondTypesDetails');if(details)details.open=enabled;['bondTypeAName','bondTypeAFormula','bondTypeBName','bondTypeBFormula'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!enabled});refreshBondTypeOptions();}
+function bondTypeLabel(which){const c=db.campaign||{};const name=(c['bondType'+which+'Name']||(which==='A'?'安定型':'ギャンブル型')).trim();const formula=(c['bondType'+which+'Formula']||(which==='A'?'1d5+5':'1d15')).trim();return name+'（'+formula+'）';}
+function refreshBondTypeOptions(){const sel=document.getElementById('bondType');if(!sel)return;const old=sel.value;const a=bondTypeLabel('A'),b=bondTypeLabel('B');sel.innerHTML='<option value="'+esc(a)+'">'+esc(a)+'</option><option value="'+esc(b)+'">'+esc(b)+'</option>';if([...sel.options].some(o=>o.value===old))sel.value=old;}
+function updateBondFeatureUI(){const enabled=document.getElementById('manageBonds')?.checked!==false;const operations=document.getElementById('bondOperationalUI');if(operations)operations.style.display=enabled?'':'none';const limit=document.getElementById('bondLimitSettings');if(limit)limit.style.display=enabled?'':'none';}
+function render(){
+
+document.getElementById('campaignName').value=db.campaign.name;document.getElementById('perTurn').value=db.campaign.perTurn;
+document.getElementById('streakLimit').value=db.campaign.streakLimit;document.getElementById('startDate').value=db.campaign.startDate;
+document.getElementById('preDays').value=db.campaign.preDays;document.getElementById('turnCount').value=db.campaign.turnCount;document.getElementById('daysPerTurn').value=Number(db.campaign.daysPerTurn)||1;document.getElementById('storyDaysPerTurn').value=db.campaign.storyDaysPerTurn??'';document.getElementById('bondUseLimit').value=Number(db.campaign.bondUseLimit)||1;document.getElementById('customBondTypes').checked=!!db.campaign.customBondTypes;document.getElementById('bondTypeAName').value=db.campaign.bondTypeAName||'安定型';document.getElementById('bondTypeAFormula').value=db.campaign.bondTypeAFormula||'1d5+5';document.getElementById('bondTypeBName').value=db.campaign.bondTypeBName||'ギャンブル型';document.getElementById('bondTypeBFormula').value=db.campaign.bondTypeBFormula||'1d15';updateCustomBondTypeUI();document.getElementById('manageBonds').checked=db.campaign.manageBonds!==false;updateBondFeatureUI();document.getElementById('manageOverseasLimit').checked=db.campaign.manageOverseasLimit!==false;document.getElementById('overseasEntryLimit').value=Number(db.campaign.overseasEntryLimit)||2;document.getElementById('overseasEntryLimit').disabled=!document.getElementById('manageOverseasLimit').checked;document.getElementById('turnNamePattern').value=db.campaign.turnNamePattern||'manual';document.getElementById('turnNameDivisions').value=String(db.campaign.turnNameDivisions||2);document.getElementById('turnNameBaseMonth').value=String(db.campaign.turnNameBaseMonth||1);
+renderScheduleOnly();
+document.getElementById('noTurnDateList').innerHTML=noTurnDates().slice().sort().map(d=>`<div class="item">${d} <span class="pill">ターン進行なし</span> <button class="small danger" onclick="removeNoTurnDate('${d}')">解除</button></div>`).join('')||'<p class="muted">休止日は指定されていません。</p>';
+document.getElementById('newTargetRaceTurn').innerHTML=turns().map(t=>`<option value="${t.index}">${t.name}${t.date?`（${t.date}）`:''}</option>`).join('');
+const targetSortControl=document.getElementById('targetRaceSort');if(targetSortControl){targetSortControl.value=targetRaceSort;targetSortControl.onchange=()=>{targetRaceSort=targetSortControl.value;renderTargetRaceList()};}renderTargetRaceList();
+const opts=db.characters.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+const entryCharSelect=document.getElementById('entryChar');
+const previouslySelectedEntryChar=entryCharSelect.value;
+['entryChar','bondA','bondB'].forEach(id=>document.getElementById(id).innerHTML=opts);
+if(db.characters.some(c=>c.id===previouslySelectedEntryChar))entryCharSelect.value=previouslySelectedEntryChar;
+const entryFilter=document.getElementById('entryFilterChar');
+const savedFilter=entryFilter.value;
+entryFilter.innerHTML='<option value="">全キャラクター</option>'+opts;
+entryFilter.value=db.characters.some(c=>c.id===savedFilter)?savedFilter:'';
+document.getElementById('entryTurn').innerHTML=turns().map(t=>`<option value="${t.index}">${t.name}${t.date?`（${t.date}）`:''}</option>`).join('');
+document.getElementById('targetRaceSelect').innerHTML=getTargets().map(t=>`<option value="${esc(t.name)}">${esc(t.name)}（${turns()[t.turn-1]?.date||''}）</option>`).join('');
+syncEntryTypeFields();
+document.getElementById('charList').innerHTML=currentCharacterRows().map(c=>{const overseasCount=db.entries.filter(e=>e.charId===c.id&&e.type==='海外レース'&&!e.cancelled).length;const overseasStatus=db.campaign.manageOverseasLimit===false?`海外レース出走：${overseasCount}回（回数制限なし）`:`海外レース出走：${overseasCount}／${Number(db.campaign.overseasEntryLimit)||2}回`;return `<div class="item char-row"><div class="char-info"><b>${esc(c.name)}</b> <span class="pill">${c.overseas?'海外申請確認済':'海外申請未確認'}</span><div class="muted">${esc(overseasStatus)}</div><div class="muted">${esc(c.url)}</div><div class="actions"><button class="small" onclick="editChar('${c.id}')">編集</button><button class="small danger" onclick="delChar('${c.id}')">削除</button></div></div><button class="small primary char-export" onclick="exportCharacterImage('${c.id}')">情報を画像出力</button></div>`}).join('')||'<p class="muted">登録キャラクターはありません。</p>';
+drawEntryList();
+drawBondList();
+document.getElementById('logList').innerHTML=db.logs.map((l,i)=>({l,i})).reverse().map(({l,i})=>`<div class="item"><b>${esc(l.category)}</b> <span class="pill">${esc(l.date)}</span><div>${esc(l.body)}</div><div class="actions"><button class="small" onclick="editLog(${i})">編集</button><button class="small danger" onclick="deleteLog(${i})">削除</button></div></div>`).join('')||'<p class="muted">ログはありません。</p>';
+}
+
+
+function streakStatus(charId,turn){
+ const seq=db.entries.filter(e=>e.charId===charId&&!e.cancelled&&e.turn<=turn).map(e=>e.turn).sort((a,b)=>a-b);
+ let count=0,last=-2;for(const t of seq){count=t===last+1?count+1:1;last=t}
+ if(count>=db.campaign.streakLimit)return `連続出走 ${count}回：上限到達（次ターン出走不可）`;
+ return `連続出走 ${count}回：次ターン出走可能`;
+}
+
+function plainText(value){return String(value??'').replace(/\r?\n/g,' ').trim()}
+async function copyListText(text,successMessage){
+ if(!text.trim())return alert('コピーする一覧がありません。');
+ try{
+  if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}
+  else{const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();if(!ok)throw new Error('copy failed')}
+  alert(successMessage+'をコピーしました。');
+ }catch(e){
+  const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.inset='10px';area.style.width='calc(100% - 20px)';area.style.height='60vh';area.style.zIndex='99999';document.body.appendChild(area);area.focus();area.select();alert('自動コピーできませんでした。表示されたテキストを選択してコピーしてください。');
+ }
+}
+function currentCharacterRows(){
+ const sort=document.getElementById('charListSort')?.value||'nameAsc';
+ return db.characters.slice().sort((a,b)=>{const ac=db.entries.filter(e=>e.charId===a.id&&e.type==='海外レース'&&!e.cancelled).length,bc=db.entries.filter(e=>e.charId===b.id&&e.type==='海外レース'&&!e.cancelled).length;switch(sort){case'nameDesc':return b.name.localeCompare(a.name,'ja');case'overseasAsc':return Number(a.overseas)-Number(b.overseas)||a.name.localeCompare(b.name,'ja');case'overseasDesc':return Number(b.overseas)-Number(a.overseas)||a.name.localeCompare(b.name,'ja');case'overseasCountDesc':return bc-ac||a.name.localeCompare(b.name,'ja');default:return a.name.localeCompare(b.name,'ja')}});
+}
+function currentEntryRows(){
+ const filter=document.getElementById('entryFilterChar')?.value||'',sort=document.getElementById('entrySort')?.value||'turnAsc';
+ const rows=db.entries.filter(e=>!filter||e.charId===filter).slice(),nm=e=>nameOf(e.charId);
+ rows.sort((a,b)=>{if(sort==='turnDesc')return b.turn-a.turn||nm(a).localeCompare(nm(b),'ja');if(sort==='charAsc')return nm(a).localeCompare(nm(b),'ja')||a.turn-b.turn;if(sort==='raceAsc')return String(a.race).localeCompare(String(b.race),'ja')||a.turn-b.turn;if(sort==='typeAsc')return String(a.type).localeCompare(String(b.type),'ja')||a.turn-b.turn;return a.turn-b.turn||nm(a).localeCompare(nm(b),'ja')});return rows;
+}
+function currentBondRows(){
+ const q=(document.getElementById('bondSearch')?.value||'').trim().toLocaleLowerCase(),sort=document.getElementById('bondSort')?.value||'nameAsc';
+ const list=db.bonds.filter(b=>[nameOf(b.a),nameOf(b.b),b.relation,b.type,b.usedWhenA,b.usedWhenB,b.usedMemoA,b.usedMemoB,b.usedRaceA,b.usedRaceB,b.usedSourceUrlA,b.usedSourceUrlB].join(' ').toLocaleLowerCase().includes(q));
+ const pairName=b=>`${nameOf(b.a)} × ${nameOf(b.b)}`;
+ list.sort((a,b)=>{switch(sort){case'nameDesc':return pairName(b).localeCompare(pairName(a),'ja');case'relationAsc':return (a.relation||'').localeCompare(b.relation||'','ja');case'typeAsc':return (a.type||'').localeCompare(b.type||'','ja');case'unusedFirst':return Number(a.usedA&&a.usedB)-Number(b.usedA&&b.usedB)||pairName(a).localeCompare(pairName(b),'ja');case'usedFirst':return Number(b.usedA&&b.usedB)-Number(a.usedA&&a.usedB)||pairName(a).localeCompare(pairName(b),'ja');default:return pairName(a).localeCompare(pairName(b),'ja')}});return list;
+}
+function characterListText(){
+ const rows=currentCharacterRows(),limit=Number(db.campaign.overseasEntryLimit)||2;
+ return [`【出走者一覧】`,`キャンペーン：${plainText(db.campaign.name)||'名称未設定'}`,`表示件数：${rows.length}人`,'',...rows.flatMap((c,i)=>{const overseas=db.entries.filter(e=>e.charId===c.id&&e.type==='海外レース'&&!e.cancelled).length;return [`${i+1}. ${plainText(c.name)}`,`   海外申請：${c.overseas?'確認済み':'未確認'}`,`   海外レース出走：${db.campaign.manageOverseasLimit===false?`${overseas}回（回数制限なし）`:`${overseas}/${limit}回`}`,...(c.url?[`   プロフィール：${plainText(c.url)}`]:[])]})].join('\n');
+}
+function entryListText(){
+ const rows=currentEntryRows(),filter=document.getElementById('entryFilterChar')?.value||'',sortLabel=document.getElementById('entrySort')?.selectedOptions?.[0]?.textContent||'';
+ const active=rows.filter(e=>!e.cancelled).length;
+ return [`【出走予定一覧】`,`キャンペーン：${plainText(db.campaign.name)||'名称未設定'}`,`表示対象：${filter?nameOf(filter):'全キャラクター'}`,`並び替え：${sortLabel}`,`表示件数：${rows.length}件（有効 ${active}件／取消済 ${rows.length-active}件）`,'',...rows.flatMap((e,i)=>{const t=turns()[e.turn-1];return [`${i+1}. ${plainText(nameOf(e.charId))}｜${plainText(e.type)}｜${plainText(e.race)}`,`   時期：${plainText(t?.name||`第${e.turn}ターン`)}（${plainText(t?.date||'日付未設定')}）`,`   状態：${e.cancelled?'取消済':'出走予定'}`,...(e.note?[`   備考：${plainText(e.note)}`]:[]),...(e.cancelReason?[`   取消理由：${plainText(e.cancelReason)}`]:[]),...(e.sourceUrl?[`   参考URL：${plainText(e.sourceUrl)}`]:[]),'']})].join('\n').trim();
+}
+function bondListText(){
+ const rows=currentBondRows(),limit=Math.max(1,Number(db.campaign.bondUseLimit)||1),sortLabel=document.getElementById('bondSort')?.selectedOptions?.[0]?.textContent||'',query=document.getElementById('bondSearch')?.value||'';
+ const side=(b,s)=>{const id=b[s.toLowerCase()],name=nameOf(id),used=!!b['used'+s],count=countBondUses(id);return [`   ${plainText(name)}：${used?'使用済み':count>=limit?'使用上限到達':'未使用' }（${count}/${limit}回）`,...(used?[`      使用時期：${plainText(b['usedWhen'+s]||'未記録')}`,`      メモ：${plainText(b['usedMemo'+s]||b['usedRace'+s]||'なし')}`,...(b['usedSourceUrl'+s]?[`      使用時参考URL：${plainText(b['usedSourceUrl'+s])}`]:[])]:[])]};
+ return [`【絆スキル取得状況一覧】`,`キャンペーン：${plainText(db.campaign.name)||'名称未設定'}`,`検索条件：${plainText(query)||'なし'}`,`並び替え：${sortLabel}`,`表示件数：${rows.length}組`,`キャラクター1人あたりの使用上限：${limit}回`,'',...rows.flatMap((b,i)=>[`【${i+1}】${plainText(nameOf(b.a))} × ${plainText(nameOf(b.b))}`,`   関係性：${plainText(b.relation)}`,`   スキル型：${plainText(b.type)}`,...(b.sourceUrl?[`   参考URL：${plainText(b.sourceUrl)}`]:[]),...side(b,'A'),...side(b,'B'),''])].join('\n').trim();
+}
+function drawEntryList(){
+ const rows=currentEntryRows();
+ const active=rows.filter(e=>!e.cancelled).length;
+ document.getElementById('entryCount').textContent=`表示：${rows.length}件（有効 ${active}件／取消済 ${rows.length-active}件）`;
+ document.getElementById('entryList').innerHTML=rows.map(e=>`<div class="item"><b>${esc(nameOf(e.charId))}</b> <span class="pill">${esc(e.type)}</span> ${esc(e.race)}<div class="muted">${turns()[e.turn-1]?.date||''}｜${turns()[e.turn-1]?.name||''}</div><div>${esc(e.note)}</div>${sourceLink(e.sourceUrl)}<div class="muted">${streakStatus(e.charId,e.turn)}</div><div class="actions">${e.cancelled?'<span class="bad">取消済</span>':`<button class="small" onclick="editEntry('${e.id}')">修正</button><button class="small" onclick="cancelEntry('${e.id}')">取消</button>`}<button class="small danger" onclick="delEntry('${e.id}')">削除</button></div>${e.cancelReason?`<div class="muted">取消理由：${esc(e.cancelReason)}</div>`:''}</div>`).join('')||'<p class="muted">該当する出走記録はありません。</p>';
+}
+document.getElementById('entryFilterChar').addEventListener('change',drawEntryList);
+document.getElementById('entrySort').addEventListener('change',drawEntryList);
+
+function canvasWrapText(ctx,text,x,y,maxWidth,lineHeight){
+ const paragraphs=String(text??'').split('\n');
+ for(const paragraph of paragraphs){let line='';for(const ch of paragraph){const test=line+ch;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;line=ch}else line=test}ctx.fillText(line,x,y);y+=lineHeight}
+ return y;
+}
+function exportCharacterImage(id){
+
+ const c=db.characters.find(x=>x.id===id);if(!c)return alert('出力するキャラクターを選択してください');
+ const entries=db.entries.filter(e=>e.charId===id).slice().sort((a,b)=>a.turn-b.turn);
+ const bonds=db.bonds.filter(b=>b.a===id||b.b===id);
+ const lines=[];
+ lines.push({type:'title',text:db.campaign.name||'キャンペーン'});
+ lines.push({type:'name',text:c.name});
+ lines.push({type:'normal',text:`海外レース事前申請：${c.overseas?'確認済み':'未確認'}`});
+ if(c.url)lines.push({type:'normal',text:`プロフィール：${c.url}`});
+ lines.push({type:'section',text:`出走情報（${entries.length}件）`});
+ if(!entries.length)lines.push({type:'normal',text:'出走情報はありません。'});
+ entries.forEach(e=>{const t=turns()[e.turn-1];lines.push({type:'entry',text:`${t?.name||`ターン${e.turn}`}｜${t?.date||'日付未設定'}\n${e.type}：${e.race}${e.cancelled?'【取消済】':''}`});if(e.note)lines.push({type:'small',text:`備考：${e.note}`});if(e.cancelled&&e.cancelReason)lines.push({type:'small',text:`取消理由：${e.cancelReason}`})});
+ lines.push({type:'section',text:`絆スキル情報（${bonds.length}組）`});
+ if(!bonds.length)lines.push({type:'normal',text:'登録された絆スキル関係はありません。'});
+ bonds.forEach(b=>{const side=b.a===id?'A':'B';const used=!!b['used'+side];lines.push({type:'bond',text:`${nameOf(b.a)} × ${nameOf(b.b)}｜${b.relation||'関係性名なし'}\n${b.type}\n${c.name}：${used?'使用済み':'未使用'}`});if(used){lines.push({type:'small',text:`使用時期：${b['usedWhen'+side]||'未記録'}`});lines.push({type:'small',text:`使用メモ：${b['usedMemo'+side]||b['usedRace'+side]||'なし'}`});if(b['usedSourceUrl'+side])lines.push({type:'small',text:`参考URL：${b['usedSourceUrl'+side]}`})}});
+ lines.push({type:'footer',text:`出力日：${new Date().toLocaleDateString('ja-JP')}｜オリウマ・シナリオマネージャー`});
+ const width=1200,pad=64,lineHeight=34,contentWidth=width-pad*2;
+ const measure=document.createElement('canvas').getContext('2d');let height=pad;
+ for(const item of lines){const size=item.type==='title'?27:item.type==='name'?43:item.type==='section'?30:item.type==='small'?22:25;measure.font=`${item.type==='title'||item.type==='name'||item.type==='section'?'700':'400'} ${size}px sans-serif`;let maxLines=0;for(const para of item.text.split('\n')){let line='',n=1;for(const ch of para){if(measure.measureText(line+ch).width>contentWidth&&line){n++;line=ch}else line+=ch}maxLines+=n}height+=Math.max(1,maxLines)* (item.type==='small'?30:lineHeight)+(item.type==='section'?28: item.type==='title'||item.type==='name'?16:10)}
+ height+=pad;
+ const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#f4f6f9';ctx.fillRect(0,0,width,height);ctx.fillStyle='#233247';ctx.fillRect(0,0,width,18);
+ let y=pad;
+ for(const item of lines){
+  const size=item.type==='title'?27:item.type==='name'?43:item.type==='section'?30:item.type==='small'?22:25;
+  const isHead=['title','name','section'].includes(item.type);ctx.font=`${isHead?'700':'400'} ${size}px sans-serif`;
+  if(item.type==='section'){y+=10;ctx.fillStyle='#e5edf6';ctx.fillRect(pad-12,y-27,width-pad*2+24,48);ctx.fillStyle='#24466b';}
+  else ctx.fillStyle=item.type==='small'?'#5e6876':'#263445';
+  y=canvasWrapText(ctx,item.text,pad,y,contentWidth,item.type==='small'?30:lineHeight);
+  y+=item.type==='section'?28:item.type==='title'||item.type==='name'?16:10;
+ }
+ ctx.font='18px sans-serif';ctx.fillStyle='#788391';ctx.textAlign='right';ctx.fillText(lines[lines.length-1].text,width-pad,height-pad/2);ctx.textAlign='left';
+ // 画像を保存する前にプレビューを表示する
+ let modal=document.getElementById('characterImagePreview');
+ if(!modal){
+  modal=document.createElement('div');modal.id='characterImagePreview';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;';
+  modal.innerHTML=`<div style="background:#fff;border-radius:14px;width:min(960px,100%);max-height:94vh;display:flex;flex-direction:column;padding:16px;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.3)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><b id="characterImagePreviewTitle">画像プレビュー</b><button type="button" id="closeCharacterImagePreview">閉じる</button></div><div style="overflow:auto;background:#eef1f5;border:1px solid #dce1e8;border-radius:8px;padding:10px;text-align:center"><img id="characterImagePreviewImg" alt="出走・絆スキル情報の画像プレビュー" style="max-width:100%;height:auto;display:inline-block"></div><div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap"><button type="button" id="saveCharacterImagePreview" style="background:#315d91;color:white">PNG画像を保存</button></div><p style="font-size:12px;color:#687385;margin:0">内容を確認してから保存してください。</p></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#closeCharacterImagePreview').addEventListener('click',()=>{modal.style.display='none'});
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});
+ }
+ const previewUrl=canvas.toDataURL('image/png');
+ modal.querySelector('#characterImagePreviewTitle').textContent=`${c.name}｜画像プレビュー`;
+ modal.querySelector('#characterImagePreviewImg').src=previewUrl;
+ modal.style.display='flex';
+ const saveButton=modal.querySelector('#saveCharacterImagePreview');
+ saveButton.onclick=()=>canvas.toBlob(blob=>{if(!blob)return alert('画像の保存に失敗しました');const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=`${c.name}_出走・絆スキル情報.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png');
+}
+
+
+function exportStatusImage(kind){
+ const isEntries=kind==='entries';
+ const title=isEntries?'出走状況':'絆スキル使用状況';
+ const lines=[db.campaign.name||'キャンペーン',title,`出力日：${new Date().toLocaleDateString('ja-JP')}`,''];
+ if(isEntries){
+  const rows=db.entries.slice().sort((a,b)=>a.turn-b.turn||nameOf(a.charId).localeCompare(nameOf(b.charId),'ja'));
+  lines.push(`登録数：${rows.length}件（有効 ${rows.filter(x=>!x.cancelled).length}件／取消済 ${rows.filter(x=>x.cancelled).length}件）`,'');
+  if(!rows.length)lines.push('出走予定はありません。');
+  rows.forEach(e=>{const t=turns()[e.turn-1];lines.push(`${nameOf(e.charId)}｜${e.type}${e.cancelled?'【取消済】':''}`,`${t?.name||`ターン${e.turn}`}｜${t?.date||'日付未設定'}｜${e.race}`);if(e.note)lines.push(`備考：${e.note}`);if(e.cancelled&&e.cancelReason)lines.push(`取消理由：${e.cancelReason}`);if(e.sourceUrl)lines.push(`参考URL：${e.sourceUrl}`);lines.push('');});
+ }else{
+  const limit=Math.max(1,Number(db.campaign.bondUseLimit)||1);
+  lines.push(`キャラクター1人あたりの使用上限：${limit}回`,'');
+  if(!db.bonds.length)lines.push('絆スキルの関係性は登録されていません。');
+  db.bonds.forEach(b=>{lines.push(`${nameOf(b.a)} × ${nameOf(b.b)}｜${b.relation||'関係性名なし'}`,`${b.type}`);if(b.sourceUrl)lines.push(`参考URL：${b.sourceUrl}`);for(const side of ['A','B']){const id=b[side.toLowerCase()],count=countBondUses(id),used=!!b['used'+side];lines.push(`・${nameOf(id)}：${count}/${limit}回｜${used?'この関係性で使用済み':count>=limit?'使用上限到達':'使用可能'}`);if(used){lines.push(`  使用時期：${b['usedWhen'+side]||'未記録'}`,`  メモ：${b['usedMemo'+side]||b['usedRace'+side]||'なし'}`);if(b['usedSourceUrl'+side])lines.push(`  使用申請参考URL：${b['usedSourceUrl'+side]}`)}}lines.push('');});
+ }
+ lines.push('オリウマ・シナリオマネージャー');
+ const width=1400,pad=58,lineHeight=34,contentWidth=width-pad*2,canvas=document.createElement('canvas'),measure=canvas.getContext('2d');
+ const wrapped=[];let height=pad;
+ lines.forEach((text,i)=>{const heading=i===0||i===1;measure.font=`${heading?'700':'400'} ${i===0?28:i===1?38:23}px sans-serif`;let line='';const chunks=[];for(const ch of String(text)){if(measure.measureText(line+ch).width>contentWidth&&line){chunks.push(line);line=ch}else line+=ch}if(line||!chunks.length)chunks.push(line);wrapped.push({chunks,heading,size:i===0?28:i===1?38:23});height+=chunks.length*lineHeight+(text===''?8:12)});
+ canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#f4f6f9';ctx.fillRect(0,0,width,height);ctx.fillStyle='#233247';ctx.fillRect(0,0,width,16);let y=pad;
+ wrapped.forEach((item,i)=>{if(item.heading){ctx.fillStyle=i===1?'#e3ebf5':'#f4f6f9';if(i===1)ctx.fillRect(pad-10,y-27,contentWidth+20,48);ctx.fillStyle='#24364b';ctx.font=`700 ${item.size}px sans-serif`}else{ctx.fillStyle='#303b49';ctx.font=`400 ${item.size}px sans-serif`}item.chunks.forEach(line=>{ctx.fillText(line,pad,y);y+=lineHeight});y+=12});
+ showStatusImagePreview(canvas,`${db.campaign.name||'キャンペーン'}｜${title}`,`${isEntries?'出走状況':'絆スキル状況'}.png`);
+}
+function showStatusImagePreview(canvas,title,fileName){
+ let modal=document.getElementById('statusImagePreview');if(!modal){modal=document.createElement('div');modal.id='statusImagePreview';modal.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:10000;display:none;align-items:center;justify-content:center;padding:18px;';modal.innerHTML=`<div style="background:#fff;border-radius:14px;width:min(960px,100%);max-height:94vh;display:flex;flex-direction:column;padding:16px;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><b id="statusImagePreviewTitle">画像プレビュー</b><button type="button" id="closeStatusImagePreview">閉じる</button></div><div style="overflow:auto;background:#eef1f5;border:1px solid #dce1e8;border-radius:8px;padding:10px;text-align:center"><img id="statusImagePreviewImg" alt="状況画像のプレビュー" style="max-width:100%;height:auto"></div><div style="display:flex;justify-content:flex-end"><button type="button" id="saveStatusImagePreview" class="primary">PNG画像を保存</button></div><p class="muted">内容を確認してから保存してください。</p></div>`;document.body.appendChild(modal);modal.querySelector('#closeStatusImagePreview').onclick=()=>modal.style.display='none';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none'});}
+ modal.querySelector('#statusImagePreviewTitle').textContent=title;modal.querySelector('#statusImagePreviewImg').src=canvas.toDataURL('image/png');modal.style.display='flex';modal.querySelector('#saveStatusImagePreview').onclick=()=>canvas.toBlob(blob=>{if(!blob)return alert('画像の保存に失敗しました');const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png');
+}
+
+function nameOf(id){return db.characters.find(c=>c.id===id)?.name||'不明なキャラクター'}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('main>section').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab))});
+function checkEntryScheduleIssues(){
+ const active=db.entries.filter(e=>!e.cancelled);
+ const issues=[];
+ const byCharTurn=new Map();
+ for(const e of active){
+  const key=`${e.charId}::${e.turn}`;
+  if(!byCharTurn.has(key))byCharTurn.set(key,[]);
+  byCharTurn.get(key).push(e);
+ }
+ for(const list of byCharTurn.values()){
+  if(list.length>1){
+   const e=list[0];
+   issues.push(`【同一ターンの重複】${nameOf(e.charId)}：ターン${e.turn}に${list.length}件（${list.map(x=>x.race).join('／')}）`);
+  }
+ }
+ const targetByName=new Map(getTargets().map(t=>[t.name,t]));
+ for(const e of active){
+  if(e.type!=='対象レース')continue;
+  const t=targetByName.get(e.race);
+  if(!t||!Number.isInteger(Number(t.turn))||Number(t.turn)<1||Number(t.turn)>db.campaign.turnCount||Number(e.turn)!==Number(t.turn)){
+   issues.push(`【対象レース日程との不一致】${nameOf(e.charId)}：${e.race}（出走予定ターン${e.turn}／設定ターン${t?.turn??'対象レース未登録'}）`);
+  }
+ }
+ const charIds=[...new Set(active.map(e=>e.charId))];
+ for(const charId of charIds){
+  const turnsForChar=[...new Set(active.filter(e=>e.charId===charId).map(e=>Number(e.turn)))].sort((a,b)=>a-b);
+  let streak=0,last=null,run=[];
+  for(const turn of turnsForChar){
+   if(last!==null&&turn===last+1){streak++;run.push(turn)}else{streak=1;run=[turn]}
+   if(streak>Number(db.campaign.streakLimit||Infinity)){
+    issues.push(`【連続出走上限超過】${nameOf(charId)}：ターン${run.join('・')}（${streak}ターン連続／上限${db.campaign.streakLimit}）`);
+   }
+   last=turn;
+  }
+ }
+ return issues;
+}
+document.getElementById('saveCampaign').onclick=()=>{
+ const n=+document.getElementById('turnCount').value,preDaysRaw=document.getElementById('preDays').value.trim(),p=preDaysRaw===''?0:Number(preDaysRaw),lim=+document.getElementById('streakLimit').value,per=+document.getElementById('perTurn').value,days=+document.getElementById('daysPerTurn').value,storyDaysRaw=document.getElementById('storyDaysPerTurn').value.trim(),storyDays=storyDaysRaw===''?null:Number(storyDaysRaw),bondLimit=+document.getElementById('bondUseLimit').value,manageBonds=document.getElementById('manageBonds').checked,overseasLimit=+document.getElementById('overseasEntryLimit').value,start=document.getElementById('startDate').value;
+ if(!n||n<1||p<0||lim<1||per<1||!Number.isInteger(days)||days<1||(storyDays!==null&&(!Number.isInteger(storyDays)||storyDays<1))||(manageBonds&&(!Number.isInteger(bondLimit)||bondLimit<1))||(document.getElementById('manageOverseasLimit').checked&&(!Number.isInteger(overseasLimit)||overseasLimit<1))||(start&&!/^\d{4}-\d{2}-\d{2}$/.test(start))){alert('日数・上限、または開催開始日の形式を確認してください');return}
+ if(!confirm(scheduleConfirmation(start,p,n,noTurnDates(),days,Array.from({length:n},(_,i)=>document.getElementById(`turnName_${i+1}`)?.value||turnName(i)))))return;
+ // 設定値と対象レース情報を先に確定・保存し、その新しい条件で出走予定を検査する。
+ const settings=captureCampaignSettings();if(!settings)return;db.campaign={...db.campaign,...settings};refreshAutomaticTurnNames(false);save();
+ // 保存した新しい対象レース日程を基準に、日程に合わなくなった対象レース出走予定だけを削除する。
+ // 対象外レース・海外レース、およびキャンセル済みの履歴は削除しない。
+ const targetByName=new Map(getTargets().map(t=>[t.name,t]));
+ const removedTargetEntries=db.entries.filter(e=>{
+  if(e.cancelled||e.type!=='対象レース')return false;
+  const target=targetByName.get(e.race);
+  return !target||!Number.isInteger(Number(target.turn))||Number(target.turn)<1||Number(target.turn)>db.campaign.turnCount||Number(e.turn)!==Number(target.turn);
+ });
+ if(removedTargetEntries.length){
+  const removedIds=new Set(removedTargetEntries.map(e=>e.id));
+  db.entries=db.entries.filter(e=>!removedIds.has(e.id));
+  save();
+ }
+ const issues=checkEntryScheduleIssues();
+ const removedNotice=removedTargetEntries.length
+  ?`\n\n新しいスケジュールに合わなくなった対象レースの出走予定を${removedTargetEntries.length}件削除しました。\n${removedTargetEntries.slice(0,10).map(e=>`・${nameOf(e.charId)}：${e.race}（旧予定ターン${e.turn}）`).join('\n')}${removedTargetEntries.length>10?`\nほか${removedTargetEntries.length-10}件`:''}`
+  :'';
+ if(issues.length){
+  const shown=issues.slice(0,20).join('\n');
+  const more=issues.length>20?`\nほか${issues.length-20}件` : '';
+  alert(`キャンペーン設定と対象レースを保存しました。${removedNotice}\n\n削除後も確認が必要な出走予定が${issues.length}件あります。\n${shown}${more}\n\n「出走管理」で確認・修正してください。`);
+ }else{
+  alert(`キャンペーン設定と対象レースを保存しました。${removedNotice}\n\n出走予定に重複・連続出走上限超過・対象レース日程の不一致はありません。`);
+ }
+};
+document.querySelectorAll('.sectionSave').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('saveCampaign').click()}));
+document.getElementById('addNoTurnDate').onclick=()=>{if(!db.campaign.startDate)return alert('休止日を設定するには、先に開催開始日を入力してください。');const d=document.getElementById('noTurnDate').value;if(!d)return alert('休止日を選択してください');if(noTurnDates().includes(d))return alert('その日は既に登録されています');if(d<db.campaign.startDate)return alert('開催開始日より前の日付は指定できません');db.campaign.noTurnDates.push(d);document.getElementById('noTurnDate').value='';save()};
+window.removeNoTurnDate=d=>{if(!confirm(`${d}の休止指定を解除しますか？`))return;db.campaign.noTurnDates=noTurnDates().filter(x=>x!==d);save()};
+document.getElementById('newCampaign').onclick=()=>{
+ if(!confirm('新しいキャンペーンを開始します。現在のキャンペーン設定、キャラクター、出走予定、絆スキル、開催ログをすべて初期化します。事前にJSONバックアップを保存しましたか？'))return;
+ if(!confirm('この操作は取り消せません。本当に初期化しますか？'))return;
+ db=initial();
+ save();
+ document.querySelector('.tab[data-tab="campaign"]').click();
+ alert('新しいキャンペーンを開始できる状態に初期化しました。キャンペーン名や開始日を設定してください。');
+};
+document.getElementById('addChar').onclick=()=>{let name=document.getElementById('charName').value.trim();if(!name)return alert('名前を入力してください');db.characters.push({id:crypto.randomUUID(),name,url:document.getElementById('charUrl').value,overseas:document.getElementById('overseasChecked').checked});document.getElementById('charName').value='';document.getElementById('charUrl').value='';save()};
+window.editChar=id=>{let c=db.characters.find(x=>x.id===id);let n=prompt('キャラクター名',c.name);if(n===null)return;let u=prompt('プロフィールURL',c.url);if(u===null)return;let overseas=prompt('海外レース事前申請の確認状態を入力してください。\\n1：申請を確認済み\\n0：未確認',c.overseas?'1':'0');if(overseas===null)return;if(!['0','1'].includes(overseas.trim()))return alert('1または0を入力してください');c.name=n.trim()||c.name;c.url=u.trim();c.overseas=overseas.trim()==='1';save()};
+window.delChar=id=>{if(!confirm('関連する出走・絆スキル情報も削除します。よろしいですか？'))return;db.characters=db.characters.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.charId!==id);db.bonds=db.bonds.filter(b=>b.a!==id&&b.b!==id);save()};
+function syncEntryTypeFields(){
+ const type=document.getElementById('entryType').value;
+ const targetSelect=document.getElementById('targetRaceSelect');
+ const turnSelect=document.getElementById('entryTurn');
+ const otherInput=document.getElementById('otherRace');
+ const isTarget=type==='対象レース';
+ targetSelect.disabled=!isTarget;
+ otherInput.disabled=isTarget;
+ const selected=getTargets().find(x=>x.name===targetSelect.value);
+ turnSelect.disabled=!!(isTarget&&selected);
+ if(isTarget&&selected&&turns()[selected.turn-1])turnSelect.value=String(selected.turn);
+}
+document.getElementById('manageOverseasLimit').addEventListener('change',()=>{document.getElementById('overseasEntryLimit').disabled=!document.getElementById('manageOverseasLimit').checked;});
+document.getElementById('entryType').onchange=syncEntryTypeFields;
+document.getElementById('targetRaceSelect').onchange=()=>{
+ const t=getTargets().find(x=>x.name===document.getElementById('targetRaceSelect').value);
+ if(t&&turns()[t.turn-1])document.getElementById('entryTurn').value=String(t.turn);
+ syncEntryTypeFields();
+};
+
+document.getElementById('addTargetRace').onclick=()=>{const name=document.getElementById('newTargetRaceName').value.trim(),turn=Number(document.getElementById('newTargetRaceTurn').value);if(!name)return alert('レース名を入力してください');if(getTargets().some(t=>t.name===name))return alert('同じ名前の対象レースが登録済みです');getTargets().push({name,turn});document.getElementById('newTargetRaceName').value='';save()};
+window.editTargetRace=i=>{const t=getTargets()[i];if(!t)return;const name=prompt('対象レース名',t.name);if(name===null)return;if(!name.trim())return alert('レース名を入力してください');const schedule=turns();const choices=schedule.map(x=>`${x.index}：${x.name}${x.date?`（${x.date}）`:''}`).join('\n');const turnText=prompt(`開催ターンを番号で選択してください。\n\n${choices}`,String(t.turn));if(turnText===null)return;const turn=Number(turnText);if(!Number.isInteger(turn)||turn<1||turn>db.campaign.turnCount)return alert('ターン番号が正しくありません');t.name=name.trim();t.turn=turn;save()};
+window.deleteTargetRace=i=>{const t=getTargets()[i];if(!t)return;if(!confirm(`「${t.name}」を対象レース一覧から削除しますか？既存の出走記録は残ります。`))return;db.campaign.targetRaces.splice(i,1);save()};
+
+function createStreakAchievementLog(charId,completedTurn){
+ const limit=Math.max(1,Number(db.campaign.streakLimit)||1);
+ const active=db.entries.filter(e=>e.charId===charId&&!e.cancelled).sort((a,b)=>a.turn-b.turn);
+ const completed=active.find(e=>e.turn===completedTurn);if(!completed)return;
+ let segment=[completed];let cursor=completedTurn-1;
+ while(true){const prev=active.find(e=>e.turn===cursor);if(!prev)break;segment.unshift(prev);cursor--;}
+ if(segment.length!==limit)return;
+ const schedule=turns();
+ const details=segment.map(e=>{const t=schedule.find(x=>x.index===e.turn);return `${t?.name||`ターン${e.turn}`}：${e.race}`;}).join(' → ');
+ const turnInfo=schedule.find(x=>x.index===completedTurn);
+ const date=turnInfo?.date||new Date().toISOString().slice(0,10);
+ db.logs.push({date,category:'連続出走上限到達',body:`対象ウマ娘：${nameOf(charId)}
+達成ターン：${turnInfo?.name||`ターン${completedTurn}`}
+連続出走数：${limit}ターン
+出走レース：${details}`});
+}
+
+document.getElementById('addEntry').onclick=()=>{let id=document.getElementById('entryChar').value,turn=+document.getElementById('entryTurn').value,type=document.getElementById('entryType').value;let c=db.characters.find(x=>x.id===id);if(!c)return alert('先にキャラクターを登録してください');if(db.entries.some(e=>e.charId===id&&e.turn===turn&&!e.cancelled))return alert('同じターンに登録済みです');let race=type==='対象レース'?document.getElementById('targetRaceSelect').value:document.getElementById('otherRace').value.trim();if(!race)return alert('レース名を入力してください');if(type==='海外レース'&&!c.overseas)return alert('海外レース事前申請の確認が必要です');if(type==='海外レース'&&db.campaign.manageOverseasLimit!==false&&db.entries.filter(e=>e.charId===id&&e.type==='海外レース'&&!e.cancelled).length>=Number(db.campaign.overseasEntryLimit||2))return alert(`海外レースは最大${Number(db.campaign.overseasEntryLimit||2)}つです`);let proposed=db.entries.filter(e=>e.charId===id&&!e.cancelled).map(e=>e.turn).concat(turn).sort((a,b)=>a-b);let streak=0,last=-2;for(let x of proposed){streak=x===last+1?streak+1:1;if(streak>db.campaign.streakLimit)return alert('連続出走上限を超えます');last=x}const sourceUrl=safeSourceUrl(document.getElementById('entrySourceUrl').value);if(document.getElementById('entrySourceUrl').value.trim()&&!sourceUrl)return alert('参考URLは http:// または https:// から始まるURLを入力してください');const note=document.getElementById('entryNote').value.trim();db.entries.push({id:crypto.randomUUID(),charId:id,turn,type,race,note,sourceUrl,cancelled:false});const turnInfo=turns().find(t=>t.index===turn);db.logs.push({date:new Date().toISOString().slice(0,10),category:'出走申請',body:`対象ウマ娘：${nameOf(id)}\n申請ターン：${turnInfo?.name||`ターン${turn}`}\n出走区分：${type}\nレース名：${race}${note?`\n申請内容：${note}`:''}`});createStreakAchievementLog(id,turn);document.getElementById('entrySourceUrl').value='';save()};
+
+window.editEntry=id=>{
+ const e=db.entries.find(x=>x.id===id); if(!e||e.cancelled)return;
+ const chars=db.characters;
+ const currentName=nameOf(e.charId);
+ const charText=prompt('出走者名を入力してください',currentName); if(charText===null)return;
+ const c=chars.find(x=>x.name===charText.trim()); if(!c)return alert('登録済みのキャラクター名と一致しません');
+ const typeText=prompt('出走区分を番号で選択してください\n1：対象レース\n2：対象外レース\n3：海外レース',e.type==='対象レース'?'1':e.type==='対象外レース'?'2':'3'); if(typeText===null)return;
+ const types={'1':'対象レース','2':'対象外レース','3':'海外レース'}; const type=types[typeText.trim()]; if(!type)return alert('1～3で入力してください');
+ const schedule=turns();
+ const turnChoices=schedule.map(t=>`${t.index}：${t.name}（開催日：${t.date}${t.endDate!==t.date?` ～ ${t.endDate}`:''}）`).join('\n');
+ const turnText=prompt(`開催ターン番号を入力してください（1～${db.campaign.turnCount}）\n\n${turnChoices}`,String(e.turn)); if(turnText===null)return;
+ const turn=Number(turnText); if(!Number.isInteger(turn)||turn<1||turn>db.campaign.turnCount)return alert('開催ターン番号が正しくありません');
+ let race='';
+ if(type==='対象レース'){
+   const list=getTargets().map((t,i)=>`${i+1}：${t.name}（ターン${t.turn}）`).join('\n');
+   const raceChoice=prompt('対象レースを番号で選択してください\n'+list, String(Math.max(1,getTargets().findIndex(t=>t.name===e.race)+1)));
+   if(raceChoice===null)return; const ix=Number(raceChoice)-1;
+   if(!Number.isInteger(ix)||!getTargets()[ix])return alert('対象レースの番号が正しくありません');
+   race=getTargets()[ix].name;
+ } else {
+   race=prompt('レース名を入力してください',e.race); if(race===null)return; race=race.trim(); if(!race)return alert('レース名を入力してください');
+ }
+ const note=prompt('備考（PL申請内容）',e.note||''); if(note===null)return;
+ const sourceText=prompt('参考URL（任意・空欄可）',e.sourceUrl||'');if(sourceText===null)return;const sourceUrl=safeSourceUrl(sourceText);if(sourceText.trim()&&!sourceUrl)return alert('URLは http:// または https:// から始まるURLを入力してください');
+ if(type==='海外レース'&&!c.overseas)return alert('このキャラクターは海外レース事前申請が未確認です');
+ const sameTurn=db.entries.some(x=>x.id!==id&&!x.cancelled&&x.charId===c.id&&x.turn===turn);
+ if(sameTurn)return alert('同じターンにこのキャラクターの出走予定が既にあります');
+ const overseasCount=db.entries.filter(x=>x.id!==id&&!x.cancelled&&x.charId===c.id&&x.type==='海外レース').length+(type==='海外レース'?1:0);
+ if(db.campaign.manageOverseasLimit!==false&&overseasCount>Number(db.campaign.overseasEntryLimit||2))return alert(`海外レースは最大${Number(db.campaign.overseasEntryLimit||2)}つです`);
+ const proposed=db.entries.filter(x=>x.id!==id&&!x.cancelled&&x.charId===c.id).map(x=>x.turn).concat(turn).sort((a,b)=>a-b);
+ let streak=0,last=-2;
+ for(const t of proposed){streak=t===last+1?streak+1:1;if(streak>db.campaign.streakLimit)return alert('連続出走上限を超えます');last=t}
+ e.charId=c.id;e.type=type;e.turn=turn;e.race=race;e.note=note;e.sourceUrl=sourceUrl;
+ save();
+};
+window.cancelEntry=id=>{let e=db.entries.find(x=>x.id===id),r=prompt('取消理由（任意）','');if(r===null)return;e.cancelled=true;e.cancelReason=r;save()};
+window.delEntry=id=>{if(confirm('この記録を完全に削除しますか？')){db.entries=db.entries.filter(e=>e.id!==id);save()}};
+document.getElementById('addBond').onclick=()=>{let a=document.getElementById('bondA').value,b=document.getElementById('bondB').value;if(!a||!b||a===b)return alert('異なるキャラクター2人を選択してください');if(document.getElementById('bondSourceUrl').value.trim()&&!safeSourceUrl(document.getElementById('bondSourceUrl').value))return alert('参考URLは http:// または https:// から始まるURLを入力してください');if(db.bonds.some(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a)))return alert('同じ組み合わせが登録済みです');const relation=document.getElementById('bondRelation').value.trim(),skillType=document.getElementById('bondType').value;db.bonds.push({id:crypto.randomUUID(),a,b,relation,type:skillType,sourceUrl:safeSourceUrl(document.getElementById('bondSourceUrl').value),reqA:false,reqB:false,usedA:false,usedB:false});db.logs.push({date:new Date().toISOString().slice(0,10),category:'絆スキル取得記録',body:`取得キャラクター：${nameOf(a)} × ${nameOf(b)}\n関係性：${relation||'未設定'}\nスキル型：${skillType}`});document.getElementById('bondSourceUrl').value='';save()};
+
+
+window.editBond=id=>{const b=db.bonds.find(x=>x.id===id);if(!b)return;const relation=prompt('関係性名',b.relation);if(relation===null)return;if(!relation.trim())return alert('関係性名を入力してください');const typeA=bondTypeLabel('A'),typeB=bondTypeLabel('B'),typeText=prompt('スキル型を選択してください。\n1：'+typeA+'\n2：'+typeB,b.type===typeA?'1':b.type===typeB?'2':b.type.includes('安定型')?'1':'2');if(typeText===null)return;if(!['1','2'].includes(typeText.trim()))return alert('1または2を入力してください');const sourceText=prompt('参考URL（任意・空欄可）',b.sourceUrl||'');if(sourceText===null)return;const sourceUrl=safeSourceUrl(sourceText);if(sourceText.trim()&&!sourceUrl)return alert('URLは http:// または https:// から始まるURLを入力してください');b.sourceUrl=sourceUrl;b.relation=relation.trim();b.type=typeText.trim()==='1'?typeA:typeB;save()};
+window.deleteBond=id=>{if(!confirm('この関係性と使用記録を削除しますか？'))return;db.bonds=db.bonds.filter(x=>x.id!==id);save()};
+window.resetBondUse=(id,side)=>{const b=db.bonds.find(x=>x.id===id);if(!b||!b['used'+side])return;if(!confirm(`${nameOf(b[side.toLowerCase()])}の絆スキル使用記録を取り消しますか？使用権が戻ります。関連する自動ログも削除します。`))return;const who=b[side.toLowerCase()],when=b['usedWhen'+side]||'';const prefix=`${nameOf(who)}：${b.relation}（${b.type}）／使用時期：${when}／`;const ix=db.logs.map((l,i)=>({l,i})).reverse().find(x=>x.l.category==='絆スキル使用記録'&&x.l.body.startsWith(prefix));if(ix)db.logs.splice(ix.i,1);b['used'+side]=false;b['usedWhen'+side]='';b['usedMemo'+side]='';b['usedRace'+side]='';b['usedSourceUrl'+side]='';b['req'+side]=false;save()};
+
+window.editBondUse=(id,side)=>{
+ const b=db.bonds.find(x=>x.id===id);
+ if(!b||!b['used'+side])return;
+ const schedule=turns();
+ const current=b['usedWhen'+side]||'';
+ const currentIndex=schedule.findIndex(t=>current.includes(t.name)&&current.includes(t.date));
+ const options=schedule.map((t,i)=>`${i+1}：${t.name}${t.date?`（${t.date}）`:''}`).join('\n');
+ const answer=prompt('使用時期を変更する場合は番号を入力してください。\n'+options, currentIndex>=0?String(currentIndex+1):'');
+ if(answer===null)return;
+ const ix=Number(answer)-1;
+ if(!Number.isInteger(ix)||!schedule[ix])return alert('時期の番号が正しくありません');
+ const memo=prompt('使用したレース名や状況などのメモを編集してください。',b['usedMemo'+side]||b['usedRace'+side]||'');
+ if(memo===null)return;
+ const sourceText=prompt('参考URL（任意・空欄可）',b['usedSourceUrl'+side]||'');
+ if(sourceText===null)return;
+ const sourceUrl=safeSourceUrl(sourceText);
+ if(sourceText.trim()&&!sourceUrl)return alert('参考URLは http:// または https:// から始まるURLを入力してください');
+ const oldWhen=b['usedWhen'+side]||'';
+ b['usedWhen'+side]=`${schedule[ix].name}${schedule[ix].date?`（${schedule[ix].date}）`:''}`;
+ b['usedMemo'+side]=memo.trim();
+ b['usedSourceUrl'+side]=sourceUrl;
+ // 対応する直近の自動ログが見つかれば内容も更新する
+ const who=b[side.toLowerCase()];
+ const prefix=`${nameOf(who)}：${b.relation}（${b.type}）／使用時期：${oldWhen}／`;
+ const log=[...db.logs].reverse().find(l=>l.category==='絆スキル使用記録'&&l.body.startsWith(prefix));
+ if(log)log.body=`${nameOf(who)}：${b.relation}（${b.type}）／使用時期：${b['usedWhen'+side]}／メモ：${memo.trim()||'なし'}`;
+ save();
+};
+
+window.markBondUsed=(id,side)=>{
+ const b=db.bonds.find(x=>x.id===id);
+ const usedKey='used'+side;
+ if(!b||b[usedKey])return;
+ const who=b[side.toLowerCase()];
+ const limit=Math.max(1,Number(db.campaign.bondUseLimit)||1),usedCount=countBondUses(who);
+ if(usedCount>=limit)return alert(`このキャラクターは絆スキルの使用上限（${limit}回）に達しています。`);
+ const schedule=turns();
+ const options=schedule.map((t,i)=>`${i+1}：${t.name}${t.date?`（${t.date}）`:''}`).join('\n');
+ const answer=prompt('使用した時期を選択してください。番号を入力してください。\n'+options, '');
+ if(answer===null)return;
+ const ix=Number(answer)-1;
+ if(!Number.isInteger(ix)||!schedule[ix])return alert('時期の番号が正しくありません');
+ const memo=prompt('使用したレース名や状況などをメモしてください（任意）','');
+ if(memo===null)return;
+ const sourceText=prompt('参考URL（任意・空欄可）','');
+ if(sourceText===null)return;
+ const sourceUrl=safeSourceUrl(sourceText);
+ if(sourceText.trim()&&!sourceUrl)return alert('参考URLは http:// または https:// から始まるURLを入力してください');
+ if(!confirm(`${nameOf(who)}を「${schedule[ix].name}${schedule[ix].date?`（${schedule[ix].date}）`:''}」に使用済みにしますか？`))return;
+ b[usedKey]=true;
+ b['usedWhen'+side]=`${schedule[ix].name}${schedule[ix].date?`（${schedule[ix].date}）`:''}`;
+ b['usedMemo'+side]=memo.trim();
+ b['usedSourceUrl'+side]=sourceUrl;
+ b['req'+side]=false;
+ db.logs.push({
+   date:new Date().toISOString().slice(0,10),
+   category:'絆スキル使用記録',
+   body:`${nameOf(who)}：${b.relation}（${b.type}）／使用時期：${b['usedWhen'+side]}／メモ：${memo.trim()||'なし'}`
+ });
+ save();
+};
+
+window.editLog=i=>{const l=db.logs[i];if(!l)return;const date=prompt('日付（YYYY-MM-DD）',l.date);if(date===null)return;if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return alert('日付形式が正しくありません');const category=prompt('分類',l.category);if(category===null)return;const body=prompt('内容',l.body);if(body===null)return;if(!body.trim())return alert('内容を入力してください');l.date=date;l.category=category.trim()||l.category;l.body=body.trim();save()};
+window.deleteLog=i=>{if(!db.logs[i])return;if(!confirm('この開催ログを削除しますか？'))return;db.logs.splice(i,1);save()};
+
+document.getElementById('addLog').onclick=()=>{let body=document.getElementById('logBody').value.trim();if(!body)return;db.logs.push({date:document.getElementById('logDate').value||new Date().toISOString().slice(0,10),category:document.getElementById('logCategory').value,body});document.getElementById('logBody').value='';save()};
+function projectCounts(data){return {characters:data.characters.length,entries:data.entries.length,activeEntries:data.entries.filter(x=>!x.cancelled).length,bonds:data.bonds.length,logs:data.logs.length,turns:Number(data.campaign?.turnCount)||0};}
+function validateProjectData(data){if(!data||typeof data!=='object'||!data.campaign||typeof data.campaign!=='object')throw new Error('キャンペーン設定がありません');for(const key of ['characters','entries','bonds','logs'])if(!Array.isArray(data[key]))throw new Error(`「${key}」のデータが配列ではありません`);const serialized=JSON.stringify(data);if(typeof serialized!=='string')throw new Error('JSONに変換できないデータが含まれています');const parsed=JSON.parse(serialized);if(!parsed.campaign||!Array.isArray(parsed.characters)||!Array.isArray(parsed.entries)||!Array.isArray(parsed.bonds)||!Array.isArray(parsed.logs))throw new Error('JSONの再検証に失敗しました');return {serialized,parsed};}
+function backupFileName(prefix='ori-uma-project-backup'){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${prefix}-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.json`;}
+function updateBackupStatus(message=''){const el=document.getElementById('backupStatus');if(!el)return;const c=projectCounts(db);el.textContent=`現在のプロジェクト「${db.campaign.name||'名称未設定'}」｜キャラクター ${c.characters}件／出走記録 ${c.entries}件（有効 ${c.activeEntries}件）／絆スキル ${c.bonds}件／開催ログ ${c.logs}件／通常ターン ${c.turns}件${message?'｜'+message:''}`;}
+document.getElementById('exportJson').onclick=()=>{try{const {serialized,parsed}=validateProjectData(db);const pretty=JSON.stringify(parsed,null,2);const filename=backupFileName();download(filename,pretty,'application/json');const bytes=new Blob([pretty],{type:'application/json'}).size;updateBackupStatus(`JSON検証成功・ダウンロード開始：${filename}（${bytes.toLocaleString()} bytes）。保存先でファイルを確認してください。`);}catch(e){console.error('JSON backup export failed',e);alert(`JSONバックアップを作成できませんでした。
+${e.message||'データを確認してください。'}`);}};
+document.getElementById('exportCsv').onclick=()=>{let rows=[['キャラクター','区分','レース','ターン','日付','備考','取消','取消理由'],...db.entries.map(e=>[nameOf(e.charId),e.type,e.race,turns()[e.turn-1]?.name||'',turns()[e.turn-1]?.date||'',e.note,e.cancelled?'取消':'有効',e.cancelReason||''])];let csv=rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('ori-uma-entries.csv','\ufeff'+csv,'text/csv');};
+function download(name,data,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);return true;}
+document.getElementById('importFile').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const oldDb=JSON.parse(JSON.stringify(db)),oldUndo=undoStack.length,oldRedo=redoStack.length;try{if(f.size>50*1024*1024)throw new Error('ファイルが50MBを超えています。通常のJSONバックアップか確認してください。');const raw=JSON.parse(await f.text());if(!raw.campaign||!Array.isArray(raw.characters)||!Array.isArray(raw.entries)||!Array.isArray(raw.bonds)||!Array.isArray(raw.logs))throw new Error('JSONの必須データが不足しています');const importedPreview=normalizeDatabase(raw);validateProjectData(importedPreview);const incomingCounts=projectCounts(importedPreview);const mode=prompt(`読み込むJSON：${raw.campaign.name||'名称未設定'}\nキャラクター ${incomingCounts.characters}件／出走記録 ${incomingCounts.entries}件／絆スキル ${incomingCounts.bonds}件／開催ログ ${incomingCounts.logs}件\n\n1：現在のキャンペーンを更新（上書き）\n2：新規キャンペーンとして切り替える`, '1');if(mode===null)return;if(!['1','2'].includes(mode.trim()))return alert('1または2を入力してください');if(document.getElementById('backupBeforeImport').checked){const safety=validateProjectData(db);const safetyName=backupFileName('ori-uma-before-restore');download(safetyName,JSON.stringify(safety.parsed,null,2),'application/json');const continueText=`現在のプロジェクトの安全用バックアップ「${safetyName}」のダウンロードを開始しました。\nブラウザのダウンロード一覧・保存先でファイルが存在することを確認してください。\n\n確認できた場合のみ「OK」を押して復元を続けてください。キャンセルすると現在のデータは変更しません。`;if(!confirm(continueText))return;}if(mode.trim()==='1'&&!confirm('現在のプロジェクト全体を読み込んだJSONで置き換えます。続行しますか？'))return;if(mode.trim()==='2'&&!confirm('読み込んだJSONを現在の作業領域に切り替えます。これは複数キャンペーンを同時に保存する機能ではありません。続行しますか？'))return;let imported=normalizeDatabase(raw);if(mode.trim()==='2')imported.campaign.name=(imported.campaign.name||'キャンペーン')+'（インポート）';db=imported;refreshAutomaticTurnNames(false);syncTargetRaceDates();if(!save()){db=oldDb;undoStack.length=oldUndo;redoStack.length=oldRedo;return;}updateBackupStatus(mode.trim()==='1'?'JSONから復元しました。旧形式の設定は読み込み時に変換済みです。':'JSONを読み込み、現在の作業領域を切り替えました。');alert('JSONの読み込みが完了しました。登録件数と内容を確認してください。');}catch(e){console.error('JSON import failed',e);alert(`JSONを読み込めませんでした。\n${e.message||'ファイル形式またはデータ内容を確認してください。'}`);}finally{ev.target.value=''}};
+document.getElementById('undoAction').addEventListener('click',undo);
+document.getElementById('redoAction').addEventListener('click',redo);
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo()}else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){e.preventDefault();redo()}});
+// 変更確定時にフォーム値を共通データへ反映し、他機能が古い設定を参照しないようにする。
+['campaignName','perTurn','streakLimit','startDate','preDays','turnCount','daysPerTurn','storyDaysPerTurn','bondUseLimit','manageOverseasLimit','overseasEntryLimit'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>commitCampaignDraft());});
+document.getElementById('manageBonds').addEventListener('change',()=>{updateBondFeatureUI();commitCampaignDraft()});
+document.getElementById('customBondTypes').addEventListener('change',()=>{updateCustomBondTypeUI();commitCampaignDraft()});
+['bondTypeAName','bondTypeAFormula','bondTypeBName','bondTypeBFormula'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{commitCampaignDraft();refreshBondTypeOptions()}));
+document.getElementById('turnNamePattern').addEventListener('change',e=>applyTurnNamePattern(e.target.value));
+document.getElementById('turnNameDivisions').addEventListener('change',()=>{commitCampaignDraft();refreshAutomaticTurnNames(false);renderScheduleOnly();save()});
+document.getElementById('turnNameBaseMonth').addEventListener('change',()=>{commitCampaignDraft();refreshAutomaticTurnNames(false);renderScheduleOnly();save()});
+document.getElementById('addFifthWeek').addEventListener('click',addFifthWeek);
+document.getElementById('schedule').addEventListener('change',e=>{if(e.target.matches('input[id^="turnName_"]'))save();});
+document.getElementById('regenerateTurnNames').addEventListener('click',()=>{if(!confirm('全ターンの名称を選択中のパターンで再生成します。個別編集した名称もすべて上書きされます。よろしいですか？'))return;refreshAutomaticTurnNames(true);renderScheduleOnly();save();});
+document.getElementById('bondSearch').addEventListener('input',drawBondList);
+document.getElementById('bondSort').addEventListener('change',drawBondList);
+document.getElementById('charListSort').addEventListener('change',render);
+document.getElementById('copyCharacterList').addEventListener('click',()=>copyListText(characterListText(),'出走者一覧'));
+document.getElementById('copyEntryList').addEventListener('click',()=>copyListText(entryListText(),'出走予定一覧'));
+document.getElementById('copyBondList').addEventListener('click',()=>copyListText(bondListText(),'絆スキル取得状況一覧'));
+syncTargetRaceDates();
+refreshTemplateSelect();
+render();
+updateHistoryButtons();
+updateBackupStatus();
+</script></body></html>
