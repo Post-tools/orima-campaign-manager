@@ -9,3 +9,5 @@ https://post-tools.github.io/orima-campaign-manager/
 - OS：Windows 11
 - 開発ツール：Codex
 - 動作確認ブラウザ：Google Chrome
+## 更新履歴
+-11/23　デフォルト画面が想定していない物になっている不具合、誤字を修正
