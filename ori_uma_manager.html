@@ -553,7 +553,7 @@ document.getElementById('newCampaign').onclick=()=>{
 };
 document.getElementById('addChar').onclick=()=>{let name=document.getElementById('charName').value.trim();if(!name)return alert('名前を入力してください');db.characters.push({id:crypto.randomUUID(),name,url:document.getElementById('charUrl').value,overseas:document.getElementById('overseasChecked').checked});document.getElementById('charName').value='';document.getElementById('charUrl').value='';save()};
 window.editChar=id=>{let c=db.characters.find(x=>x.id===id);let n=prompt('キャラクター名',c.name);if(n===null)return;let u=prompt('プロフィールURL',c.url);if(u===null)return;let overseas=prompt('海外レース事前申請の確認状態を入力してください。\\n1：申請を確認済み\\n0：未確認',c.overseas?'1':'0');if(overseas===null)return;if(!['0','1'].includes(overseas.trim()))return alert('1または0を入力してください');c.name=n.trim()||c.name;c.url=u.trim();c.overseas=overseas.trim()==='1';save()};
-window.delChar=id=>{if(!confirm('関連する出走・絆スキル情報も削除します。よろしいですか？'))return;db.characters=db.characters.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.charId!==id);db.bonds=db.bonds.filter(b=>b.a!==id&&b.b!==id);save()};
+window.delChar=id=>{if(!confirm('キャラクターを削除すると、関連する出走情報と絆スキルの登録は解除されます。絆スキルの取得・使用履歴は開催ログに残ります。よろしいですか？'))return;db.characters=db.characters.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.charId!==id);db.bonds=db.bonds.filter(b=>b.a!==id&&b.b!==id);save()};
 function syncEntryTypeFields(){
  const type=document.getElementById('entryType').value;
  const targetSelect=document.getElementById('targetRaceSelect');
