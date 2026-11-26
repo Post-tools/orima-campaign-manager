@@ -11,3 +11,4 @@ https://post-tools.github.io/orima-campaign-manager/
 - 動作確認ブラウザ：Google Chrome
 ## 更新履歴
 11/23　デフォルト画面が想定していない物になっている不具合、誤字を修正
+11/26　画面表記が真っ白になっているのを修正
